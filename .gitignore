@@ -1,0 +1,12 @@
+.idea/
+.vs/
+BattleAction/
+Binaries/
+Content/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vsconfig
+BattleAction.sln
+BattleAction.uproject
+BattleAction.uproject.DotSettings.user
