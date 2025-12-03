@@ -1,0 +1,37 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "EnvironmentSettings.generated.h"
+
+class UCheckBox;
+
+
+UCLASS()
+class BATTLEACTION_API UEnvironmentSettings : public UUserWidget
+{
+	GENERATED_BODY()
+	
+public:
+	virtual void NativeConstruct() override;
+	
+	UFUNCTION()
+	void ChangeMonsterHPBarState(bool bIsChecked);
+	
+	virtual FReply NativeOnKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent ) override;
+	
+	void Open();
+	void Close();
+	
+
+private:
+	UPROPERTY(BlueprintReadWrite, Meta = (BindWidget), Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UCheckBox> m_bHideCheckBox;
+	
+};
+
+
+
+
