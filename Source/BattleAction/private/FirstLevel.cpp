@@ -5,7 +5,6 @@
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
 #include "SubSystems/UIManager.h"
-#include "SubSystems/DebugManager.h"
 //#include "Monster/Monster.h"
 
 AFirstLevel::	AFirstLevel() :
@@ -68,13 +67,7 @@ void AFirstLevel::SpawnMinion()
 	// }
 }
 
-void AFirstLevel::ToggleDebugMode()
-{
-	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
-	check(debugManager != nullptr);
 
-	debugManager->ToggleDebugMode();
-}
 
 
 void AFirstLevel::SpawnBoss()

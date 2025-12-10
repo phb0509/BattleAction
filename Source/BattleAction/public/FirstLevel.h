@@ -29,8 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnMinion();
 
-	UFUNCTION(BlueprintCallable)
-	void ToggleDebugMode();
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;

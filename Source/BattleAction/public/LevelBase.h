@@ -13,7 +13,10 @@ UCLASS()
 class BATTLEACTION_API ALevelBase : public ALevelScriptActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ALevelBase();
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleDebugMode();
 };
