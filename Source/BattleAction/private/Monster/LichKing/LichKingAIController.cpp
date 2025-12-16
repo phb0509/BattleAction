@@ -22,8 +22,7 @@ void ALichKingAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 
-	m_Owner = Cast<ALichKing>(pawn);
-	check(m_Owner != nullptr);
+	m_Owner = CastChecked<ALichKing>(pawn);
 
 	UAIPerceptionComponent* aiPerceptionComponent = GetAIPerceptionComponent();
 	check(aiPerceptionComponent != nullptr);
@@ -50,8 +49,7 @@ void ALichKingAIController::OnUnPossess()
 
 void ALichKingAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
-	ACharacterBase* const perceivedCharacter = Cast<ACharacterBase>(actor);
-	check(perceivedCharacter != nullptr);
+	ACharacterBase* const perceivedCharacter = CastChecked<ACharacterBase>(actor);
 	
 	const int teamType = GetTeamAttitudeTowards(*actor);
 	FString teamTypeName = "";

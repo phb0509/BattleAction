@@ -18,12 +18,9 @@ void USkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_Owner = Cast<APlayableCharacter>(GetOwner());
-	check(m_Owner != nullptr);
-	
-	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
-	check(m_OwnerAnimInstance != nullptr);
-	
+	m_Owner = CastChecked<APlayableCharacter>(GetOwner());
+	m_OwnerAnimInstance = CastChecked<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
+
 	loadSkills();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
 }

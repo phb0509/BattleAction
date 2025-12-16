@@ -6,6 +6,7 @@
 #include "Perception/AISense_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+
 ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
 {
@@ -22,11 +23,10 @@ void ASuperMinionAIController::BeginPlay()
 void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: OnPossess"));
 	
-	m_Owner = Cast<ASuperMinion>(pawn);
-	check(m_Owner != nullptr);
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: OnPossess"));
+
+	m_Owner = CastChecked<ASuperMinion>(pawn);
 
 	UAIPerceptionComponent* aiPerceptionComponent = GetAIPerceptionComponent();
 	check(aiPerceptionComponent != nullptr);
@@ -60,33 +60,32 @@ void ASuperMinionAIController::OnUnPossess()
 
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
-	ACharacterBase* const perceivedCharacter = Cast<ACharacterBase>(actor);
-	check(perceivedCharacter != nullptr);
+	ACharacterBase* const perceivedCharacter = CastChecked<ACharacterBase>(actor);
 	
 	const int teamType = GetTeamAttitudeTowards(*actor);
 	FString teamTypeName = "";
 
-	switch (teamType) // ÀÎÁöÇÑ °´Ã¼ÀÇ ÆÀ¿¡ µû¸¥ ÀÌº¥Æ®Ã³¸®.
+	switch (teamType) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ®Ã³ï¿½ï¿½.
 	{
-	case 0: // µ¿·á
+	case 0: // ï¿½ï¿½ï¿½ï¿½
 		{
 			teamTypeName = "Friendly::";
 		}
 		break;
 
-	case 1: // Áß¸³
+	case 1: // ï¿½ß¸ï¿½
 		{
 			teamTypeName = "Neutral::";
 		}
 		break;
 
-	case 2: // Àû. ÇöÀç µî·ÏµÈ ÀûÀº ÇÃ·¹ÀÌ¾î¹Û¿¡ ¾ø´Ù.
+	case 2: // ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ïµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½.
 		{
 			teamTypeName = "Enemy::";
 
 			const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
-			if (enemyOnBlackBoard == nullptr) // ½Ã¾ß¹üÀ§ ¾ÈÀ¸·Î ÀûÀÌ µé¾î¿ÔÀ» ¶§
+			if (enemyOnBlackBoard == nullptr) // ï¿½Ã¾ß¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 			{
 				Blackboard->SetValueAsObject(AMonster::EnemyKey, perceivedCharacter);
 			}
@@ -97,7 +96,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 		break;
 	}
 
-	// ·Î±×Ãâ·Â
+	// ï¿½Î±ï¿½ï¿½ï¿½ï¿½
 	FString log = "'" + m_Owner->Tags[0].ToString() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->
 		Tags[0].ToString() + "'";
 

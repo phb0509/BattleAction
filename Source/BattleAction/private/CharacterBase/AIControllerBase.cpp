@@ -28,8 +28,7 @@ void AAIControllerBase::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 
-	m_Owner = Cast<ACharacterBase>(pawn);
-	check(m_Owner != nullptr);
+	m_Owner = CastChecked<ACharacterBase>(pawn);
 }
 
 void AAIControllerBase::OnUnPossess()

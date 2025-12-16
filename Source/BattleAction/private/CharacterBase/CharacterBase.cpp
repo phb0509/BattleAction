@@ -12,7 +12,7 @@
 #include "Component/CrowdControlComponent.h"
 
 
-int32 attackCount = 0; // ·Î±×¿ë ÀÓ½Ã°ª
+int32 attackCount = 0; // ï¿½Î±×¿ï¿½ ï¿½Ó½Ã°ï¿½
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
 
@@ -35,16 +35,15 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	attackCount = 0; // ·Î±×Ãâ·Â¿ë.
+	attackCount = 0; // ï¿½Î±ï¿½ï¿½ï¿½Â¿ï¿½.
 
 	check(IsValid(m_StatComponent));
 	check(IsValid(m_CrowdControlComponent));
-	
-	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	check(m_AnimInstanceBase != nullptr);
-	
-	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); 
-	
+
+	m_AnimInstanceBase = CastChecked<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+
+	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death);
+
 	OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
 }
 
@@ -65,9 +64,9 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 	const float _finaldamage = m_StatComponent->CalculateFinalDamage(finalDamage); 
 
 	m_StatComponent->OnDamageHP(_finaldamage);
-	m_LastHitDirection = Utility::GetHitDirection(instigator->GetActorLocation(), this); // ÇÇ°Ý¹æÇâ °è»ê.
+	m_LastHitDirection = Utility::GetHitDirection(instigator->GetActorLocation(), this); // ï¿½Ç°Ý¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½.
 	
-	// ÇÇ°ÝÁ¤º¸ »ý¼º.
+	// ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	const FHitInformation hitInfo =
 	{
 		attackInfo->attackName,
@@ -83,7 +82,7 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 		attackInfo->staminaDamage
 	};
 	
-	OnTakeDamage.Broadcast(hitInfo); // µ¥¹ÌÁöUI ¹× HitEffect
+	OnTakeDamage.Broadcast(hitInfo); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI ï¿½ï¿½ HitEffect
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
 	{
@@ -93,7 +92,7 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 		}
 	}
 	
-	// ·Î±×¿ë
+	// ï¿½Î±×¿ï¿½
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(_finaldamage) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
@@ -133,7 +132,7 @@ void ACharacterBase::playDeathMontage(const int32 hitDirection)
 {
 	m_AnimInstanceBase->StopAllMontages(0.0f);
 	
-	if (m_DeathMontages.Num() >= 1) // ÃÖ¼Ò 1°³ÀÌ»óÀÖÀ¸¸é
+	if (m_DeathMontages.Num() >= 1) // ï¿½Ö¼ï¿½ 1ï¿½ï¿½ï¿½Ì»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
 		if (m_DeathMontages.Num() > hitDirection)
 		{

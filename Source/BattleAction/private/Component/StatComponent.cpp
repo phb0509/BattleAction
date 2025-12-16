@@ -28,15 +28,13 @@ void UStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_Owner = Cast<ACharacterBase>(GetOwner());
-	check(m_Owner != nullptr);
-	
+	m_Owner = CastChecked<ACharacterBase>(GetOwner());
 	InitHP();
 }
 
 void UStatComponent::OnDamageHP(const float damage)
 {
-	m_CurHP = FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP); // »ó¼ö°ª
+	m_CurHP = FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP); // ï¿½ï¿½ï¿½ï¿½ï¿½
 	
 	if (m_CurHP < KINDA_SMALL_NUMBER) 
 	{
@@ -48,7 +46,7 @@ void UStatComponent::OnDamageHP(const float damage)
 		RecoveryHP();
 	}
 
-	OnDamagedHP.Broadcast(); // UIÃ¼·Â¹Ù ¾÷µ¥ÀÌÆ®.
+	OnDamagedHP.Broadcast(); // UIÃ¼ï¿½Â¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®.
 }
 
 void UStatComponent::RecoveryHP()
