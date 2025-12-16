@@ -9,7 +9,7 @@ public class BattleAction : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem",
-			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras"});
+			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras", "SignificanceManager"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary", "DatasmithCore" });
 
