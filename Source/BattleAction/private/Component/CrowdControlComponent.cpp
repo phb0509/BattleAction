@@ -16,7 +16,8 @@ UCrowdControlComponent::UCrowdControlComponent() :
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	
-	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
+	const UEnum* enumPtr = StaticEnum<ECrowdControlType>();
+	
 	if (enumPtr != nullptr)
 	{
 		for (int i = 0; i < enumPtr->NumEnums(); ++i)
@@ -37,17 +38,13 @@ UCrowdControlComponent::UCrowdControlComponent() :
 void UCrowdControlComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	m_Owner = Cast<ACharacterBase>(GetOwner());
-	check(m_Owner != nullptr);
-	
-	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
-	check(m_OwnerAnimInstance != nullptr);
+
+	m_Owner = CastChecked<ACharacterBase>(GetOwner());
+	m_OwnerAnimInstance = CastChecked<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
 
 	if (!m_Owner->IsA(APlayableCharacter::StaticClass()))
 	{
-		m_OwnerAIController = Cast<AAIController>(GetOwner()->GetInstigatorController());
-		check(m_OwnerAIController != nullptr);
+		m_OwnerAIController = CastChecked<AAIController>(GetOwner()->GetInstigatorController());
 	}
 	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &UCrowdControlComponent::TakeAttack_Knockback);
@@ -110,7 +107,7 @@ void UCrowdControlComponent::OnGroggy()
 				}
 
 				ClearGroggyTimerHandle();
-				OnEndedGroggy.Broadcast(); // ½ºÅ×¹Ì³ª 100% + Ã¼·Â ¹× ½ºÅ×¹Ì³ª ÀÚ°¡È¸º¹ ½ÃÀÛ.
+				OnEndedGroggy.Broadcast(); // ï¿½ï¿½ï¿½×¹Ì³ï¿½ 100% + Ã¼ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½×¹Ì³ï¿½ ï¿½Ú°ï¿½È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 			},
 		m_CrowdControlSetting.groggyTime,
 		false);
@@ -118,18 +115,18 @@ void UCrowdControlComponent::OnGroggy()
 
 void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlType::Down) // ´Ù¿î À¯Áö
+	if (m_CurCrowdControlState == ECrowdControlType::Down) // ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
 		CallTimer_CheckOnGround();
 	}
-	else if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ¿¡¾îº» À¯Áö
+	else if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ï¿½ï¿½ï¿½îº» ï¿½ï¿½ï¿½ï¿½
 	{
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_CheckOnGround();
 	} 
-	else // »óÅÂÀÌ»ó X or ³Ë¹é or ±×·Î±â
+	else // ï¿½ï¿½ï¿½ï¿½ï¿½Ì»ï¿½ X or ï¿½Ë¹ï¿½ or ï¿½×·Î±ï¿½
 	{
 		this->SetCrowdControlState(ECrowdControlType::Knockback);
 		
@@ -144,7 +141,7 @@ void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHit
 
 }
 
-void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // ³Ë¹éCC½Ã°£ ³¡³¯ ¶§ È£Ãâ
+void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // ï¿½Ë¹ï¿½CCï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½
 {
 	if (m_Owner->IsDead())
 	{
@@ -172,19 +169,19 @@ void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // ³Ë¹éCC½Ã
 
 void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ¿¡¾îº» À¯Áö
+	if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ï¿½ï¿½ï¿½îº» ï¿½ï¿½ï¿½ï¿½
 	{
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 		DisableMovementComponentForDuration(0.2f); 
 	}
-	else // »óÅÂÀÌ»ó X or ´Ù¿î or ³Ë¹é or ±×·Î±â
+	else // ï¿½ï¿½ï¿½ï¿½ï¿½Ì»ï¿½ X or ï¿½Ù¿ï¿½ or ï¿½Ë¹ï¿½ or ï¿½×·Î±ï¿½
 	{
 		this->SetCrowdControlState(ECrowdControlType::Down);
 		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 		
 		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
-		const float downTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f; // CC½Ã°£ÀÌ ¸ùÅ¸ÁÖÀç»ý½Ã°£º¸´Ù ÂªÀ»°æ¿ì¸¦ ´ëºñÇÑ º¸Á¤°ª
+		const float downTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f; // CCï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ Âªï¿½ï¿½ï¿½ï¿½ì¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		
 		GetOwner()->GetWorldTimerManager().SetTimer(
 			m_CrowdControlTimerHandle,
@@ -205,7 +202,7 @@ void UCrowdControlComponent::CallTimer_CheckOnGround()
 			-1);
 }
 
-void UCrowdControlComponent::CheckOnGround() // OnGroundÀÎÁö Æ½¸¶´Ù È£ÃâµÇ¾îÁö´Â ÇÔ¼ö.
+void UCrowdControlComponent::CheckOnGround() // OnGroundï¿½ï¿½ï¿½ï¿½ Æ½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
 {
 	if (m_Owner->IsDead())
 	{
@@ -268,13 +265,13 @@ void UCrowdControlComponent::TakeAttack_Airborne(AActor* instigator, const FHitI
 {
 	FVector airbornePower = {0.0f, 0.0f, attackInfo.airbornePower};
 
-	if (m_CurCrowdControlState == ECrowdControlType::Down) // ´Ù¿î À¯Áö
+	if (m_CurCrowdControlState == ECrowdControlType::Down) // ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 	{
-		airbornePower.Z /= 2; // ´Ù¿î»óÅÂ¿¡¼­ÀÇ ¿¡¾îº»Àº º¸Á¤°ªÀ» ¸ÔÀÎ´Ù.
+		airbornePower.Z /= 2; // ï¿½Ù¿ï¿½ï¿½ï¿½Â¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½îº»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î´ï¿½.
 		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 	}
-	else // ³Ë¹é or ¿¡¾îº» or ±×·Î±â
+	else // ï¿½Ë¹ï¿½ or ï¿½ï¿½ï¿½îº» or ï¿½×·Î±ï¿½
 	{
 		this->SetCrowdControlState(ECrowdControlType::Airborne);
 		
@@ -320,7 +317,7 @@ void UCrowdControlComponent::playCrowdControlMontage(const ECrowdControlType cro
 	
 	auto montages = m_CrowdControlSetting.crowdControlMontages[crowdControlType].montages;
 
-	if (montages.Num() >= 1) // ÃÖ¼Ò 1°³ÀÌ»óÀÖÀ¸¸é
+	if (montages.Num() >= 1) // ï¿½Ö¼ï¿½ 1ï¿½ï¿½ï¿½Ì»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
 		if (montages.Num() > hitDirection)
 		{
@@ -341,7 +338,7 @@ void UCrowdControlComponent::endedCrowdControl()
 void UCrowdControlComponent::BreakCrowdControlState()
 {
 	ClearCrowdControlTimerHandle();
-	ClearGroggyTimerHandle(); // ÀÌ°Ô ½ÇÇà ¾ÈµÇ¼­ ¸®Ä¿¹ö¸®ÇÒ ¶§ isgroggy°¡ true.
+	ClearGroggyTimerHandle(); // ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ÈµÇ¼ï¿½ ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ isgroggyï¿½ï¿½ true.
 	
 	this->SetCrowdControlState(ECrowdControlType::None);
 }

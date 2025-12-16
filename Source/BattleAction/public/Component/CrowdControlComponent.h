@@ -40,7 +40,7 @@ public:
 	TObjectPtr<UAnimMontage> getUpMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CrowdControl Time")
-	float groggyTime;
+	float groggyTime = 2.0f;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, AllowedClasses = "ACharacter"))
