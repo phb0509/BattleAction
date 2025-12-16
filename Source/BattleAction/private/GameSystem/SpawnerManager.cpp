@@ -54,13 +54,9 @@ void ASpawnerManager::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
 	{
 		return;
 	}
-
-	APlayableCharacter* player = Cast<APlayableCharacter>(OtherActor);
-	check(player != nullptr);
 	
 	m_bHasTriggered = true;
-	m_TriggerVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("ASpawnerManager::OnBeginOverlap - Player detected, starting spawn"));
 
 	startAllSpawners();
