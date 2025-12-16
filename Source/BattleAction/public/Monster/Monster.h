@@ -38,23 +38,6 @@ public:
 	uint8 GetCurFSMState() const { return m_CurFSMState; }
 	ACharacterBase* GetTarget() const;
 	
-	// template<
-	// typename T, typename = typename TEnableIf<
-	// TOr<
-	// 		TIsSame<T, uint8>,
-	// 		TAnd<
-	// 			TIsEnumClass<T>,
-	// 			TIntegralConstant<bool, sizeof(T) == sizeof(uint8)>
-	// 		>
-	// 	>::Value
-	// >::Type>
-	// void SetFSMState(const T state)
-	// {
-	// 	const uint8 enumIndex = static_cast<uint8>(state);
-	// 	m_CurFSMState = enumIndex;
-	// 	SetBehaviorTreeFSMState(enumIndex);
-	// }
-	
 	template<MyProjectConcepts::ValidFSMStateType T>
 	void SetFSMState(const T state)
 	{
@@ -62,16 +45,23 @@ public:
 		m_CurFSMState = enumIndex;
 		SetBehaviorTreeFSMState(enumIndex);
 	}
-
-	
 	
 	void SetBehaviorTreeFSMState(uint8 enumIndex) const;
 	void SetIsDead(bool bIsDead);
 
 	void Pause();
 	void Unpause();
+
+	// Significance Manager 최적화
+	void UpdateOptimizationLevel(float Significance);
 	
 protected:
+	// IPoolableActor VirtualFunction
+	virtual void Initialize() override;
+	virtual void Activate() override;
+	virtual void Deactivate() override;
+	virtual bool IsActive() override;
+	
 	virtual void OnStaminaIsZero() override;
 	
 	virtual void Die() override;
@@ -92,14 +82,11 @@ protected:
 	
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 	
-	// IPoolableActor VirtualFunction
-	virtual void Initialize() override;
-	virtual void Activate() override;
-	virtual void Deactivate() override;
-	virtual bool IsActive() override;
-	
+
 private:
 	void setTimeline();
+	void optimize();
+	void deoptimize();
 
 public:
 	static const FName HomePosKey;
@@ -112,14 +99,17 @@ protected:
 	uint8 m_CurFSMState;
 	FTimerHandle m_DiffuseRatioOnHitTimer;
 
-	FTimeline m_DeathTimeline;		
-	FTimeline m_DeathDissolveTimeline;			
+	FTimeline m_DeathTimeline;
+	FTimeline m_DeathDissolveTimeline;
 
 	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
 	TObjectPtr<UCurveFloat> m_DeathCurveFloat;
 
 	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
 	TObjectPtr<UCurveFloat> m_DeathDissolveCurveFloat;
+	
+	UPROPERTY(EditAnywhere, Category = "Optimization")
+	bool m_bUseSignificanceManager = true;
 	
 private:
 	TWeakObjectPtr<AAIControllerBase> m_AIControllerBase;
