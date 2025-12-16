@@ -38,6 +38,18 @@ void USpawner::StartSpawn()
 		return;
 	}
 
+	if (m_bUseSequentialSpawn)
+	{
+		startSequentialSpawn();
+	}
+	else
+	{
+		spawnMonstersInGrid();
+	}
+}
+
+void USpawner::startSequentialSpawn()
+{
 	m_CurrentSpawnCount = 0;
 
 	GetWorld()->GetTimerManager().SetTimer(
@@ -70,8 +82,44 @@ void USpawner::spawnMonster()
 	
 	AMonster* monster = actorPool->SpawnActor<AMonster>(m_MonsterClass, this->GetComponentLocation());
 	check(monster != nullptr);
-	
+
 	++m_CurrentSpawnCount;
+}
+
+void USpawner::spawnMonstersInGrid()
+{
+	const FVector spawnerLocation = GetComponentLocation();
+
+	UActorPoolManager* poolManager = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>();
+	check(poolManager != nullptr);
+
+	AActorPool* actorPool = poolManager->GetActorPool();
+	check(actorPool != nullptr);
+
+	int32 spawnedCount = 0;
+
+	// 격자 패턴으로 스폰
+	for (float x = -m_GridRangeX; x <= m_GridRangeX; x += m_GridSpacing)
+	{
+		for (float y = -m_GridRangeY; y <= m_GridRangeY; y += m_GridSpacing)
+		{
+			// 스포너 중심 위치는 제외 (플레이어가 있을 위치)
+			if (FMath::IsNearlyZero(x) && FMath::IsNearlyZero(y))
+			{
+				continue;
+			}
+
+			FVector spawnLocation = spawnerLocation + FVector(x, y, 0.0f);
+
+			AMonster* monster = actorPool->SpawnActor<AMonster>(m_MonsterClass, spawnLocation);
+			if (monster)
+			{
+				++spawnedCount;
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("USpawner::spawnMonstersInGrid - Spawned %d monsters in grid pattern"), spawnedCount);
 }
 
 
