@@ -18,9 +18,9 @@ void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int reques
 		return;
 	}
 	
-	if (m_ActorPool.Contains(classType)) 
+	if (m_ActorPool.Contains(classType))
 	{
-		if (m_ActorPool[classType].actors.Num() < requestedCapacity)  // ÇöÀç ¸¸µé¾îÁø°Ô ¿äÃ»¹ŞÀº°Íº¸´Ù Àû´Ù¸é
+		if (m_ActorPool[classType].actors.Num() < requestedCapacity)  // í˜„ì¬ ìƒì„±ê°œìˆ˜ê°€ ìš”ì²­ê°œìˆ˜ë³´ë‹¤ ì ë‹¤ë©´
 		{
 			requestedCapacity -= m_ActorPool[classType].actors.Num();
 		}
@@ -66,7 +66,7 @@ AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVecto
 		return nullptr;
 	}
 	
-	if (!m_ActorPool.Contains(classType)) // ÀÌ¹Ì ¸¸µé¾îÁøÀûÀÌ ¾Æ¿¹ ¾ø´Ù¸é (Å°°ªÀÚÃ¼°¡ ¾ø´Ù¸é)
+	if (!m_ActorPool.Contains(classType)) // ì´ë¯¸ ìƒì„±ë˜ì–´ìˆì§€ ì•Šì„ ê²½ìš° (í‚¤ìì²´ê°€ ì—†ë‹¤ë©´)
 	{
 		CreateActorPool(classType, m_DefaultSpawnCount);
 	}
@@ -93,10 +93,10 @@ AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVecto
 		}
 	}
 
-	if (actor == nullptr) // ¾×ÅÍÇ®ÀÌ ²ËÃ¡´Ù¸é (²¨³¾ ¾×ÅÍ°¡ ¾ø´Ù¸é)
+	if (actor == nullptr) // ì•¡í„°í’€ì´ ê½‰ì°¼ë‹¤ë©´ (ë¹ˆê²Œ ì—†ë‹¤ë©´)
 	{
-		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // Ãß°¡»ı¼º.
-		actor = spawnActor(classType);
+		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // ì¶”ê°€ìƒì„±.
+		actor = spawnActor(classType, spawnLocation);
 	}
 
 	return actor;
