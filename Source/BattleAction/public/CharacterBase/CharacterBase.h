@@ -10,7 +10,6 @@
 #include "Interfaces/Damageable.h"
 #include "CharacterBase.generated.h"
 
-class ACharacterBase;
 class UAnimInstanceBase;
 class UStatComponent;
 class AAIControllerBase;
@@ -36,9 +35,7 @@ class BATTLEACTION_API ACharacterBase : public ACharacter, public IDamageable
 public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-
-
+	
 	// IDamageable
 	virtual void OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	void OnDamageStamina(const float staminaDamage) const;
@@ -66,12 +63,12 @@ public:
 	FORCEINLINE bool IsCrowdControlState() const;
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
-	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
-	
+	FORCEINLINE float GetCurSpeed() const { return GetVelocity().Size(); }
+
 	FORCEINLINE bool IsSuperArmor() const { return m_bIsSuperArmor; }
-	FORCEINLINE bool IsOnGround() const { return m_bIsOnGround; }
-	FORCEINLINE bool IsFalling() const { return m_bIsFalling; }
-	FORCEINLINE bool IsFlying() const { return m_bIsFlying; }
+	FORCEINLINE bool IsOnGround() const { return GetCharacterMovement()->IsMovingOnGround(); }
+	FORCEINLINE bool IsFalling() const { return GetCharacterMovement()->IsFalling(); }
+	FORCEINLINE bool IsFlying() const { return GetCharacterMovement()->IsFlying(); }
 	FORCEINLINE bool IsDead() const { return m_bIsDead; }
 
 	FORCEINLINE void SetIsSuperArmor(const bool bIsSuperArmor) { m_bIsSuperArmor = bIsSuperArmor; }
@@ -93,6 +90,7 @@ public:
 	void RecoveryHP() const;
 	void RecoveryStamina() const;
 
+	void SetAllComponentsTickEnabled(bool bEnabled);
 
 protected:
 	virtual void OnHPIsZero();
@@ -119,24 +117,12 @@ public:
 	
 protected:
 	
-	UPROPERTY(EditDefaultsOnly) 
+	UPROPERTY(EditDefaultsOnly)
 	float m_WalkSpeed;
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	float m_RunSpeed;
-	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	float m_CurSpeed;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsOnGround;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsFalling;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsFlying;
-	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
 	

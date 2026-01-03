@@ -1,22 +1,42 @@
 
 
 #include "CharacterBase/AnimInstanceBase.h"
+#include "CharacterBase/CharacterBase.h"
 
 
 UAnimInstanceBase::UAnimInstanceBase() :
-	m_bIsLastMontagePlayInterrupted(false)
+	m_bIsLastMontagePlayInterrupted(false),
+	m_CurSpeed(0.0f),
+	m_bIsOnGround(false),
+	m_bIsFalling(false),
+	m_bIsFlying(false)
 {
 }
 
 void UAnimInstanceBase::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
-	
+
 	OnMontageStarted.AddDynamic(this, &UAnimInstanceBase::Exec_OnMontageStarted);
 	OnMontageEnded.AddDynamic(this, &UAnimInstanceBase::Exec_OnMontageEnded);
+
+	m_Owner = Cast<ACharacterBase>(TryGetPawnOwner());
 }
 
-void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* montage) // 호출됐다는거 자체가 몽타주가 유효한거라 유효성 체크x.
+void UAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	if (m_Owner.IsValid())
+	{
+		m_CurSpeed = m_Owner->GetVelocity().Size();
+		m_bIsOnGround = m_Owner->GetCharacterMovement()->IsMovingOnGround();
+		m_bIsFalling = m_Owner->GetCharacterMovement()->IsFalling();
+		m_bIsFlying = m_Owner->GetCharacterMovement()->IsFlying();
+	}
+}
+
+void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* montage) 
 {
 	const FName montageName = montage->GetFName();
 	

@@ -6,7 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "AnimInstanceBase.generated.h"
 
-
+class ACharacterBase;
 DECLARE_DELEGATE(FSkillMontageEvent_Delegate);
 
 USTRUCT(Atomic) 
@@ -44,8 +44,6 @@ public:
 
 	FORCEINLINE bool IsLastMontagePlayInterrupted() const { return m_bIsLastMontagePlayInterrupted; }
 	
-
-
 	// Bind Func
 	template <typename UObjectTemplate>
 	void BindFunc_OnMontageStarted(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
@@ -147,8 +145,9 @@ public:
 	};
 
 
+protected:
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	
-private:
 	UFUNCTION()
 	virtual void Exec_OnMontageStarted(UAnimMontage* montage);
 	
@@ -171,10 +170,24 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, TObjectPtr<UAnimMontage>> m_Montages;
-	
+
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 
 	bool m_bIsLastMontagePlayInterrupted;
+
+	TWeakObjectPtr<ACharacterBase> m_Owner;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	float m_CurSpeed;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsOnGround;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsFalling;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsFlying;
 };
 
 

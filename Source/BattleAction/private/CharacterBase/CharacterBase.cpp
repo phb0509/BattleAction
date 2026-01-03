@@ -20,14 +20,13 @@ const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2"
 ACharacterBase::ACharacterBase() :
     m_WalkSpeed(200.0f),
     m_RunSpeed(400.0f),
-	m_CurSpeed(0.0f),
 	m_bIsSuperArmor(false),
 	m_bIsDead(false)
 {
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 	m_StatComponent->OnStaminaIsZero.AddUObject(this, &ACharacterBase::OnStaminaIsZero);
-	
+
 	m_CrowdControlComponent = CreateDefaultSubobject<UCrowdControlComponent>(TEXT("CrowdControlComponent"));
 }
 
@@ -45,16 +44,6 @@ void ACharacterBase::BeginPlay()
 	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death);
 
 	OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
-}
-
-void ACharacterBase::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	m_CurSpeed = GetVelocity().Size();
-	m_bIsOnGround = GetCharacterMovement()->IsMovingOnGround();
-	m_bIsFalling = GetCharacterMovement()->IsFalling();
-	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
 void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
@@ -254,4 +243,17 @@ UShapeComponent* ACharacterBase::GetCollider(const FName& colliderName) const
 bool ACharacterBase::IsCrowdControlState() const
 {
 	return m_CrowdControlComponent->IsCrowdControlState();
+}
+
+void ACharacterBase::SetAllComponentsTickEnabled(bool bEnabled)
+{
+	TInlineComponentArray<UActorComponent*> Components;
+	GetComponents(Components);
+	for (UActorComponent* Component : Components)
+	{
+		if (Component)
+		{
+			Component->SetComponentTickEnabled(bEnabled);
+		}
+	}
 }
