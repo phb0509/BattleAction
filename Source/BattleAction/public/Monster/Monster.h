@@ -51,16 +51,15 @@ public:
 
 	void Pause();
 	void Unpause();
-
-	// Significance Manager 최적화
-	void UpdateOptimizationLevel(float Significance);
+	
+	virtual bool IsActive() override;
 	
 protected:
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void Deactivate() override;
-	virtual bool IsActive() override;
+	
 	
 	virtual void OnStaminaIsZero() override;
 	
@@ -72,21 +71,20 @@ protected:
 	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue); // 특정시간(조절 가능한)동안 디퓨즈값 검은색으로 점점 변환.
 
 	UFUNCTION()
-	void OnCalledTimelineEvent_End_AfterDeath(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
+	void OnCalledTimelineEvent_End_AfterDeath(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수)
 
 	UFUNCTION()					
 	void OnCalledTimelineEvent_Loop_DeathDissolve(float curveValue); // 특정시간(조절 가능한)동안 디퓨즈값 검은색으로 점점 변환.
 
 	UFUNCTION()
-	void OnCalledTimelineEvent_End_DeathDissolve(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
+	void OnCalledTimelineEvent_End_DeathDissolve(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수)
 	
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 	
 
 private:
 	void setTimeline();
-	void optimize();
-	void deoptimize();
+
 
 public:
 	static const FName HomePosKey;

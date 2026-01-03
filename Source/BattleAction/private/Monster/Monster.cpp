@@ -36,7 +36,6 @@ void AMonster::BeginPlay()
 	m_CrowdControlComponent->OnEndedGroggy.AddUObject(this, &AMonster::EndedGroggy);
 	
 	setTimeline();
-	optimize();
 }
 
 void AMonster::Tick(float DeltaSeconds)
@@ -129,8 +128,21 @@ void AMonster::Initialize()
 	// HPBar 위젯 생성 및 부착.
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	check(uiManager != nullptr);
-	
+
 	uiManager->CreateMonsterHPBar(this);
+
+	// Animation Budget 최적화: 화면에 렌더링될 때만 애니메이션 업데이트
+	//GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	
+	// GetMesh()->bAutoCalculateSignificance = true;
+	// GetMesh()->bAutoRegisterWithBudgetAllocator = true;
+	
+	
+
+	// // Animation Budget - 거리에 따른 최적화 강도 설정
+	// GetMesh()->bEnableUpdateRateOptimizations = true;  // 업데이트 레이트 최적화 활성화
+	// GetMesh()->AnimUpdateRateParams->BaseNonRenderedUpdateRate = 4;  // 화면 밖: 4프레임마다 업데이트
+	// GetMesh()->AnimUpdateRateParams->MaxEvalRateForInterpolation = 4; // 보간 시 최대 평가 레이트
 }
 
 void AMonster::Activate()
@@ -157,6 +169,9 @@ void AMonster::Activate()
 	this->SetActorTickEnabled(true);
 	this->SetActorHiddenInGame(false);
 
+	// 모든 컴포넌트 Tick 활성화
+	SetAllComponentsTickEnabled(true);
+
 	OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
 	
 	// UI
@@ -164,6 +179,7 @@ void AMonster::Activate()
 	check(uiManager != nullptr);
 	
 	OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
+	
 }
 
 void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
@@ -189,11 +205,9 @@ void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회
 		}
 	}
 
-	deoptimize();
-
-	// this->Pause();
-	// GetMesh()->SetHiddenInGame(true);
-	// this->SetTickableWhenPaused(true);
+	// 모든 컴포넌트 Tick 중지 (Animation Budget 소모 방지)
+	SetAllComponentsTickEnabled(false);
+	
 	this->SetActorTickEnabled(false);
 	this->SetActorHiddenInGame(true);
 }
@@ -229,135 +243,9 @@ void AMonster::setTimeline()
 		dissolveDeathTimeline_Loop.BindDynamic(this, &AMonster::OnCalledTimelineEvent_Loop_DeathDissolve);
 		m_DeathDissolveTimeline.AddInterpFloat(m_DeathDissolveCurveFloat, dissolveDeathTimeline_Loop);
 
-		FOnTimelineEvent dissolvTimeline_End;
-		dissolvTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_DeathDissolve);
-		m_DeathDissolveTimeline.SetTimelineFinishedFunc(dissolvTimeline_End);
-	}
-}
-
-void AMonster::optimize()
-{
-	// 애니메이션 최적화 설정
-	if (USkeletalMeshComponent* mesh = GetMesh())
-	{
-		// 화면 밖에서는 애니메이션 업데이트 안 함. 
-		mesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
-	
-		// URO (Update Rate Optimization) 활성화. 
-		mesh->bEnableUpdateRateOptimizations = true;
-	}
-
-	//Significance Manager 최적화 (토글 가능)
-	if (m_bUseSignificanceManager)
-	{
-		if (USignificanceManager* significanceManager = USignificanceManager::Get<USignificanceManager>(GetWorld()))
-		{
-			// 자동으로 플레이어와의 거리 계산, 화면 내 여부 등을 계산
-			significanceManager->RegisterObject(
-				this,
-				TEXT("Monster"),
-				[this](USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& ViewPoint) -> float
-				{
-					// 거리 계산 (가까울수록 높은 값)
-					const float distance = FVector::Dist(GetActorLocation(), ViewPoint.GetLocation());
-					const float maxDistance = 300.0f; // 최대 고려 거리
-
-					// 0.0(멀리) ~ 1.0(가까이)
-					return FMath::Clamp(1.0f - (distance / maxDistance), 0.0f, 1.0f);
-				},
-				USignificanceManager::EPostSignificanceType::Sequential,
-				[this](USignificanceManager::FManagedObjectInfo* ObjectInfo, float OldSignificance, float NewSignificance, bool bFinal)
-				{
-					// Significance 값이 변경될 때 호출
-					UpdateOptimizationLevel(NewSignificance);
-				}
-			);
-		}
-	}
-}
-void AMonster::UpdateOptimizationLevel(float Significance)
-{
-	// 죽었거나 비활성 상태면 최적화 스킵
-	if (IsDead() || !IsActive())
-	{
-		return;
-	}
-
-	// Significance 값에 따라 최적화 레벨 결정
-	// 1.0 = 매우 가까움 (플레이어 근처)
-	// 0.5 = 중간 거리
-	// 0.0 = 매우 멀리
-
-	if (Significance >= 0.6f) // 가까운 거리 - 최고 품질
-	{
-		// 모든 기능 활성화
-		SetActorTickInterval(0.0f); // 매 프레임 Tick
-
-		// AI 정상 작동
-		if (m_AIControllerBase.IsValid() && m_AIControllerBase->GetBrainComponent())
-		{
-			if (m_AIControllerBase->GetBrainComponent()->IsPaused())
-			{
-				m_AIControllerBase->GetBrainComponent()->ResumeLogic(TEXT("High Significance"));
-			}
-		}
-
-		// 애니메이션 정상 업데이트
-		if (USkeletalMeshComponent* mesh = GetMesh())
-		{
-			mesh->bPauseAnims = false;
-		}
-	}
-	else if (Significance >= 0.3f) // 중간 거리 - 중간 품질
-	{
-		// Tick 간격 늘림
-		SetActorTickInterval(0.1f); // 0.1초마다 Tick (10fps)
-
-		// AI는 유지하되 느리게 업데이트
-		if (m_AIControllerBase.IsValid() && m_AIControllerBase->GetBrainComponent())
-		{
-			if (m_AIControllerBase->GetBrainComponent()->IsPaused())
-			{
-				m_AIControllerBase->GetBrainComponent()->ResumeLogic(TEXT("Medium Significance"));
-			}
-		}
-
-		// 애니메이션 정상 업데이트
-		if (USkeletalMeshComponent* mesh = GetMesh())
-		{
-			mesh->bPauseAnims = false;
-		}
-	}
-	else // 먼 거리 - 최소 품질
-	{
-		// Tick 매우 느리게
-		SetActorTickInterval(0.5f); // 0.5초마다 Tick (2fps)
-
-		// AI 일시정지 (전투 중이 아닐 때만)
-		if (m_AIControllerBase.IsValid() && m_AIControllerBase->GetBrainComponent())
-		{
-			// 적(플레이어)을 인지하지 않았다면 AI 일시정지
-			ACharacterBase* Enemy = GetTarget();
-			if (Enemy == nullptr)
-			{
-				m_AIControllerBase->GetBrainComponent()->PauseLogic(TEXT("Low Significance"));
-			}
-		}
-
-		// 애니메이션은 유지 (멀리서도 보일 수 있으므로)
-		// 단, VisibilityBasedAnimTickOption 설정으로 화면 밖이면 자동으로 안 그려짐
-	}
-}
-
-void AMonster::deoptimize()
-{
-	// Significance Manager 등록 해제
-	if (m_bUseSignificanceManager)
-	{
-		if (USignificanceManager* significanceManager = USignificanceManager::Get<USignificanceManager>(GetWorld()))
-		{
-			significanceManager->UnregisterObject(this);
-		}
+		FOnTimelineEvent dissolveTimeline_End;
+		dissolveTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_DeathDissolve);
+		m_DeathDissolveTimeline.SetTimelineFinishedFunc(dissolveTimeline_End);
 	}
 }
 
