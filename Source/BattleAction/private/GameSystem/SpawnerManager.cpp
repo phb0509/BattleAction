@@ -3,7 +3,6 @@
 
 #include "GameSystem/SpawnerManager.h"
 #include "Components/BoxComponent.h"
-#include "PlayableCharacter/PlayableCharacter.h"
 #include "Monster/Monster.h"
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
@@ -11,6 +10,7 @@
 
 
 ASpawnerManager::ASpawnerManager() :
+	m_bIsActive(true),
 	m_bHasTriggered(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -28,6 +28,11 @@ void ASpawnerManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!m_bIsActive)
+	{
+		return;
+	}
+
 	collectSpawners();
 	preallocateMonsterPool();
 }
@@ -41,30 +46,21 @@ void ASpawnerManager::collectSpawners()
 
 	for (USpawner* spawner : spawnerComponents)
 	{
-		m_Spawners.Add(spawner);
+		if (spawner->IsActive() && spawner != nullptr)
+		{
+			m_Spawners.Add(spawner);
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("ASpawnerManager::collectSpawners - Found %d spawner(s)"), m_Spawners.Num());
 }
 
-void ASpawnerManager::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-							 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASpawnerManager::preallocateMonsterPool()
 {
-	if (m_bHasTriggered)
+	if (m_Spawners.IsEmpty())
 	{
 		return;
 	}
-	
-	m_bHasTriggered = true;
-	
-	UE_LOG(LogTemp, Warning, TEXT("ASpawnerManager::OnBeginOverlap - Player detected, starting spawn"));
-
-	startAllSpawners();
-}
-
-void ASpawnerManager::preallocateMonsterPool()
-{
-	check(!m_Spawners.IsEmpty());
 
 	UActorPoolManager* poolManager = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>();
 	check(poolManager != nullptr);
@@ -74,10 +70,8 @@ void ASpawnerManager::preallocateMonsterPool()
 
 	TMap<TSubclassOf<AMonster>, int32> monsterRequirements;
 
-	for (const auto& spawner : m_Spawners)
+	for (const USpawner* spawner : m_Spawners)
 	{
-		check(spawner != nullptr);
-
 		TSubclassOf<AMonster> monsterClass = spawner->GetMonsterClass();
 		check(monsterClass != nullptr);
 
@@ -90,9 +84,25 @@ void ASpawnerManager::preallocateMonsterPool()
 	for (const auto& pair : monsterRequirements)
 	{
 		actorPool->CreateActorPool(pair.Key, pair.Value);
+		
 		UE_LOG(LogTemp, Log, TEXT("ASpawnerManager::preallocateMonsterPool - Preallocated %d monsters of class %s"),
 			pair.Value, *pair.Key->GetName());
 	}
+}
+
+void ASpawnerManager::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+							 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!m_bIsActive || m_bHasTriggered)
+	{
+		return;
+	}
+
+	m_bHasTriggered = true;
+
+	UE_LOG(LogTemp, Warning, TEXT("ASpawnerManager::OnBeginOverlap - Player detected, starting spawn"));
+
+	startAllSpawners();
 }
 
 void ASpawnerManager::startAllSpawners()

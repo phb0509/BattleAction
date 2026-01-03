@@ -18,7 +18,7 @@ class BATTLEACTION_API ASpawnerManager : public AActor
 
 public:
 	ASpawnerManager();
-
+	
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 					   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -37,6 +37,9 @@ public:
 	TObjectPtr<UBoxComponent> m_TriggerVolume;
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	bool m_bIsActive;
+
 	TArray<TObjectPtr<USpawner>> m_Spawners;
 	bool m_bHasTriggered;
 
