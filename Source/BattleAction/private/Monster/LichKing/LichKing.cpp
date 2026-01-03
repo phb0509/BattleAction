@@ -187,6 +187,6 @@ void ALichKing::printLog()
 	FString log3 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
 	GEngine->AddOnScreenDebugMessage(304, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
 	
-	GEngine->AddOnScreenDebugMessage(305, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(305, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), GetCurSpeed()));
 	GEngine->AddOnScreenDebugMessage(306, 3.f, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed : %f  "), GetCharacterMovement()->MaxWalkSpeed));
 }
