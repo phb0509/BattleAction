@@ -2,8 +2,6 @@
 
 
 #include "GameSystem/Spawner.h"
-
-#include "NavigationSystem.h"
 #include "Monster/Monster.h"
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
@@ -12,9 +10,13 @@
 class UNavigationSystemV1;
 
 USpawner::USpawner() :
+	m_bUseSequentialSpawn(true),
 	m_SpawnInterval(1.0f),
 	m_MaxSpawnCount(1),
-	m_CurrentSpawnCount(0)
+	m_CurrentSpawnCount(0),
+	m_GridRows(4),
+	m_GridColumns(3),
+	m_GridSpacing(200.0f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
@@ -86,7 +88,7 @@ void USpawner::spawnMonster()
 	++m_CurrentSpawnCount;
 }
 
-void USpawner::spawnMonstersInGrid()
+void USpawner::spawnMonstersInGrid() const
 {
 	const FVector spawnerLocation = GetComponentLocation();
 
@@ -98,28 +100,25 @@ void USpawner::spawnMonstersInGrid()
 
 	int32 spawnedCount = 0;
 
-	// 격자 패턴으로 스폰
-	for (float x = -m_GridRangeX; x <= m_GridRangeX; x += m_GridSpacing)
+	// 행/열 격자 패턴으로 스폰 (Spawner 위치 = 0,0)
+	for (int32 row = 0; row < m_GridRows; ++row)
 	{
-		for (float y = -m_GridRangeY; y <= m_GridRangeY; y += m_GridSpacing)
+		for (int32 col = 0; col < m_GridColumns; ++col)
 		{
-			// 스포너 중심 위치는 제외 (플레이어가 있을 위치)
-			if (FMath::IsNearlyZero(x) && FMath::IsNearlyZero(y))
-			{
-				continue;
-			}
-
-			FVector spawnLocation = spawnerLocation + FVector(x, y, 0.0f);
+			// Spawner 위치에서 X축으로 row만큼, Y축으로 col만큼 오프셋
+			const FVector offset = FVector(row * m_GridSpacing, col * m_GridSpacing, 0.0f);
+			const FVector spawnLocation = spawnerLocation + offset;
 
 			AMonster* monster = actorPool->SpawnActor<AMonster>(m_MonsterClass, spawnLocation);
-			if (monster)
+			if (monster != nullptr)
 			{
 				++spawnedCount;
 			}
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("USpawner::spawnMonstersInGrid - Spawned %d monsters in grid pattern"), spawnedCount);
+	UE_LOG(LogTemp, Warning, TEXT("USpawner::spawnMonstersInGrid - Spawned %d monsters (%d rows x %d columns)"),
+		spawnedCount, m_GridRows, m_GridColumns);
 }
 
 

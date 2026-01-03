@@ -21,10 +21,14 @@ public:
 
 	FORCEINLINE TSubclassOf<AMonster> GetMonsterClass() const { return m_MonsterClass; }
 	FORCEINLINE int32 GetMaxSpawnCount() const { return m_MaxSpawnCount; }
-
+	
 protected:
 	virtual void BeginPlay() override;
 
+private:
+	void startSequentialSpawn();
+	void spawnMonster();
+	void spawnMonstersInGrid() const;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawn")
@@ -32,7 +36,7 @@ private:
 
 	// true: 순차 스폰 (기존), false: 격자 동시 스폰 (신규)
 	UPROPERTY(EditAnywhere, Category = "Spawn")
-	bool m_bUseSequentialSpawn = true;
+	bool m_bUseSequentialSpawn;
 
 	// === 순차 스폰 설정 ===
 	UPROPERTY(EditAnywhere, Category = "Spawn|Sequential", meta = (EditCondition = "m_bUseSequentialSpawn", EditConditionHides))
@@ -46,16 +50,14 @@ private:
 
 	// === 격자 스폰 설정 ===
 	UPROPERTY(EditAnywhere, Category = "Spawn|Grid", meta = (EditCondition = "!m_bUseSequentialSpawn", EditConditionHides))
-	float m_GridRangeX = 50.0f;
+	int32 m_GridRows;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn|Grid", meta = (EditCondition = "!m_bUseSequentialSpawn", EditConditionHides))
-	float m_GridRangeY = 50.0f;
+	int32 m_GridColumns;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn|Grid", meta = (EditCondition = "!m_bUseSequentialSpawn", EditConditionHides))
-	float m_GridSpacing = 100.0f;
+	float m_GridSpacing;
 
-	void startSequentialSpawn();
-	void spawnMonster();
-	void spawnMonstersInGrid();
+
 
 };
