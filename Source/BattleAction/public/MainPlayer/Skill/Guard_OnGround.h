@@ -6,9 +6,11 @@
 #include "PlayableCharacter/Skill.h"
 #include "Guard_OnGround.generated.h"
 
-/**
- * 
- */
+
+class UCameraShakeBase;
+class USoundWave;
+class UParticleSystem;
+
 UCLASS()
 class BATTLEACTION_API UGuard_OnGround : public USkill
 {
@@ -22,6 +24,9 @@ public:
 
 protected:
 	virtual bool CanExecuteSkill() const override;
+	
+private:
+	void onParrySuccess(AActor* instigator);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
@@ -31,4 +36,13 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float m_ParryingTime;
+	
+	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
+	TSubclassOf<UCameraShakeBase> m_ParryingShake;
+	
+	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
+	TObjectPtr<USoundWave> m_ParryingSound;
+	
+	UPROPERTY(EditAnywhere, Category = "Parrying Effect")
+	TObjectPtr<UParticleSystem> m_ParryingHitParticle;
 };

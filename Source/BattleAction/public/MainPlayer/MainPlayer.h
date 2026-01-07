@@ -6,6 +6,7 @@
 #include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageOverrideDelegate, AActor*)
 
 struct FInputActionValue;
 class UMainPlayerSkillComponent;
@@ -36,9 +37,6 @@ public:
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 
-	FORCEINLINE bool IsParrying() const { return m_bIsParrying; }
-	FORCEINLINE void SetIsParrying(const bool bIsParrying) { m_bIsParrying = bIsParrying; }
-
 	
 private:
 	void initAssets();
@@ -47,14 +45,14 @@ private:
 	void printLog();
 	
 public:
+	FOnDamageOverrideDelegate OnDamageOverride;
+	
 	static const FName SwordColliderName;
 	static const FName ShieldForAttackColliderName;
 	static const FName ShieldForGuardColliderName;
 
 	
 private:
-	bool m_bIsParrying;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;
 	
@@ -67,6 +65,5 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
-	UPROPERTY(EditAnywhere, Category = "Parrying Effect")
-    TObjectPtr<UParticleSystem> m_ParryingHitParticle;
+	
 };

@@ -12,7 +12,6 @@
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
 #include "Component/CrowdControlComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "SubSystems/DebugManager.h"
 
 
@@ -20,8 +19,7 @@ const FName AMainPlayer::SwordColliderName = "SwordCollider";
 const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
 const FName AMainPlayer::ShieldForGuardColliderName = "ShieldForGuardCollider";
 
-AMainPlayer::AMainPlayer() :
-	m_bIsParrying(false)
+AMainPlayer::AMainPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -54,31 +52,14 @@ void AMainPlayer::BeginPlay()
 
 void AMainPlayer::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
 {
-	if (m_bIsParrying)
+	if (OnDamageOverride.IsBound())
 	{
-		ACharacterBase* attacker = Cast<ACharacterBase>(instigator);
-		if (attacker != nullptr)
-		{
-			attacker->OnDamageStamina(1000.0f);
-			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_ParryingShake);
-			UGameplayStatics::PlaySoundAtLocation(this, m_ParryingSound, this->GetActorLocation());
+		OnDamageOverride.Broadcast(instigator);
+		
+		return;
+	}
 
-			if (m_ParryingHitParticle)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(
-					GetWorld(),
-					m_ParryingHitParticle,
-					this->GetActorLocation(),
-					FRotator::ZeroRotator,
-					true // bAutoDestroy
-				);
-			}
-		}
-	}
-	else
-	{
-		Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
-	}
+	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
 }
 
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
@@ -109,8 +90,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	
 	UMainPlayerSkillComponent* skillComponent = Cast<UMainPlayerSkillComponent>(m_SkillComponent);
 	check(skillComponent != nullptr);
-	
-	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
 	
 	// UI
 	enhancedInputComponent->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()), &AMainPlayerController::OpenEnvironmentSettingsState);
@@ -202,9 +181,9 @@ void AMainPlayer::initAssets()
 	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollider->SetCapsuleRadius(18.0f);
 	m_SwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Player"));
-	m_SwordCollider->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
+	m_SwordCollider->SetGenerateOverlapEvents(true); // 釉붾（?꾨┛?몄쓽 Generate Overlap Events????묐릺??肄붾뱶.
 	m_SwordCollider->SetNotifyRigidBodyCollision(false);
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // ?꾩슂?좊븣留??ㅺ린
 	
 	
 	
@@ -286,10 +265,6 @@ void AMainPlayer::printLog()
 	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
 	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
 	GEngine->AddOnScreenDebugMessage(9, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
-
-	const FString bIsGuarding = FString::FromInt(m_bIsParrying);
-	FString log5 = Tags[0].ToString() + " :: Is Parrying :: " + bIsGuarding;
-	GEngine->AddOnScreenDebugMessage(10, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 	
 	// const FString log6 = "Controller Yaw :: " + FString::SanitizeFloat(GetController()->GetControlRotation().Yaw);
 	// GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log6));
