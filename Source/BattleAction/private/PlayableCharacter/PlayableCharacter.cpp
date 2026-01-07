@@ -30,9 +30,7 @@ APlayableCharacter::APlayableCharacter() :
 	m_bIsLockOnMode(false),
 	m_LockOnRotaionDuration(0.2f),
 	m_LockOnCameraPitch(-37.0f),
-	m_OnHitCameraShake(nullptr),
-	m_ParryingShake(nullptr),
-	m_ParryingSound(nullptr)
+	m_OnHitCameraShake(nullptr)
 {
 	initAssets();
 }
@@ -52,7 +50,7 @@ void APlayableCharacter::BeginPlay()
 }
 
 
-void APlayableCharacter::RotateActorToKeyInputDirection() // WSAD Å°ÀÔ·Â¹æÇâÀ¸·Î ¾×ÅÍÈ¸Àü.
+void APlayableCharacter::RotateActorToKeyInputDirection() // WSAD í‚¤ìž…ë ¥ë°©í–¥ìœ¼ë¡œ ì•¡í„°íšŒì „.
 {
 	FRotator actorRotation = GetActorRotation();
 	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
@@ -61,7 +59,7 @@ void APlayableCharacter::RotateActorToKeyInputDirection() // WSAD Å°ÀÔ·Â¹æÇâÀ¸·Î
 	SetActorRotation(actorRotation);
 }
 
-void APlayableCharacter::RotateActorToControllerYaw() // ¾×ÅÍÀÇ zÃàÈ¸Àü°ªÀ» ÄÁÆ®·Ñ·¯ÀÇ zÃàÈ¸Àü°ªÀ¸·Î º¯°æ.
+void APlayableCharacter::RotateActorToControllerYaw() // ì•¡í„°ì˜ zì¶•íšŒì „ê°’ì„ ì»¨íŠ¸ë¡¤ëŸ¬ì˜ zì¶•íšŒì „ê°’ìœ¼ë¡œ ë³€ê²½.
 {
 	FRotator actorRotation = GetActorRotation();
 	actorRotation.Yaw =  GetControlRotation().Yaw;
@@ -126,15 +124,15 @@ FVector APlayableCharacter::GetForwardVectorFromControllerYaw() const
 
 FVector APlayableCharacter::GetRightVectorFromControllerYaw() const
 {
-	const FRotator controllerYawRotator(0.0f, GetControlRotation().Yaw, 0.0f); // ÄÁÆ®·Ñ·¯ Yaw¸¦ ±âÁØÀ¸·ÎÇÑ ÀÓ½Ã°ª.
-	const FVector rightVector = FRotationMatrix(controllerYawRotator).GetUnitAxis(EAxis::Y);  // Right ¹æÇâ
+	const FRotator controllerYawRotator(0.0f, GetControlRotation().Yaw, 0.0f); // ì»¨íŠ¸ë¡¤ëŸ¬ Yawë¥¼ ê¸°ì¤€ìœ¼ë¡œí•œ ìž„ì‹œê°’.
+	const FVector rightVector = FRotationMatrix(controllerYawRotator).GetUnitAxis(EAxis::Y);  // Right ë°©í–¥
 	
 	return rightVector;
 }
 
 FVector APlayableCharacter::GetWorldKeyInputDirection(const int32 keyInputDirection) const
 {
-	// keyInputDirection == 0 ~ 7±îÁöÀÇ 8¹æÇâ. Àü¹æ ~ ÁÂ»ó.
+	// keyInputDirection == 0 ~ 7ê¹Œì§€ì˜ 8ë°©í–¥. ì „ë°© ~ ì¢Œìƒ.
 	
 	const float controllerYaw = GetController()->GetControlRotation().Yaw + 45.0f * keyInputDirection;
 	const FRotator rotation = {0.0f, controllerYaw, 0.0f};
@@ -150,54 +148,54 @@ int32 APlayableCharacter::GetLocalDirectionIndex(const FVector& worldDirection) 
 	constexpr float cos22_5 = 0.382f; // cos(67.5)
 	constexpr float cos67_5 = 0.924f; // cos(22.5)
 	
-	if (rightDot >= 0.0f) // ¿ìÃø
+	if (rightDot >= 0.0f) // ìš°ì¸¡
 	{
 		if (forwardDot >= cos22_5)
 		{
-			return 0; // Àü¹æ
+			return 0; // ì „ë°©
 		}
 		
 		if (forwardDot >= cos67_5)
 		{
-			return 1; // Àü¹æ ¿ìÃø ´ë°¢
+			return 1; // ì „ë°© ìš°ì¸¡ ëŒ€ê°
 		}
 			
 		if (forwardDot >= -cos22_5)
 		{
-			return 2; // ¿ìÃø
+			return 2; // ìš°ì¸¡
 		}
 			
 		if (forwardDot >= -cos67_5)
 		{
-			return 3; // ÈÄ¹æ ¿ìÃø ´ë°¢
+			return 3; // í›„ë°© ìš°ì¸¡ ëŒ€ê°
 		}
 
-		return 4; // ÈÄ¹æ
+		return 4; // í›„ë°©
 	}
 	
-	else // ÁÂÃø
+	else // ì¢Œì¸¡
 	{
 		if (forwardDot >= cos22_5)
 		{
-			return 0; // Àü¹æ
+			return 0; // ì „ë°©
 		}
 		
 		if (forwardDot >= cos67_5)
 		{
-			return 7; // Àü¹æ ÁÂÃø ´ë°¢
+			return 7; // ì „ë°© ì¢Œì¸¡ ëŒ€ê°
 		}
 			
 		if (forwardDot >= -cos22_5)
 		{
-			return 6; // ÁÂÃø
+			return 6; // ì¢Œì¸¡
 		}
 			
 		if (forwardDot >= -cos67_5)
 		{
-			return 5; // ÈÄ¹æ ÁÂÃø ´ë°¢
+			return 5; // í›„ë°© ì¢Œì¸¡ ëŒ€ê°
 		}
 
-		return 4; // ÈÄ¹æ
+		return 4; // í›„ë°©
 	}
 }
 
@@ -206,7 +204,7 @@ int32 APlayableCharacter::GetLocalDirectionUsingInverseMatrix(const FVector& wor
 	const FVector localDirection = GetActorTransform().InverseTransformVector(worldDirection);
 	const float radian = FMath::Atan2(localDirection.Y, localDirection.X);
 
-	constexpr float range = PI / 8; // 22.5µµ
+	constexpr float range = PI / 8; // 22.5ë„
 
 	if (radian >= -range && radian < range) // Front
 	{
@@ -229,7 +227,7 @@ int32 APlayableCharacter::GetLocalDirectionUsingInverseMatrix(const FVector& wor
 	}
 
 	// if ((radian < -7 * range && radian >= -8 * range) ||
-	// 	(radian >= 7 * range && radian <= 8 * range)) // µÚÂÊ
+	// 	(radian >= 7 * range && radian <= 8 * range)) // ë’¤ìª½
 	// {
 	// 	return 4; 
 	// }
@@ -268,7 +266,7 @@ APostProcessVolume* APlayableCharacter::GetGlobalPostProcessVolume() const
 	{
 		APostProcessVolume* postProcessVolume = *iterator;
 		
-		if (postProcessVolume != nullptr) // Àü¿ª Àû¿ë ¼³Á¤ È®ÀÎ
+		if (postProcessVolume != nullptr) // ì „ì—­ ì ìš© ì„¤ì • í™•ì¸
 		{
 			return postProcessVolume;
 		}
@@ -334,7 +332,7 @@ void APlayableCharacter::ToggleLockOnMode()
 
 		uiManager->SetVisibilityWidgets(TEXT("LockOn"), ESlateVisibility::Collapsed);
 	}
-	else // ¶ô¿Â¸ðµå Å°·ÁÇÒ °æ¿ì
+	else // ë½ì˜¨ëª¨ë“œ í‚¤ë ¤í•  ê²½ìš°
 	{
 		m_CurLockOnTarget = findNearestTarget();
 
@@ -359,7 +357,7 @@ ACharacterBase* APlayableCharacter::findNearestTarget()
 	
 	UKismetSystemLibrary::SphereOverlapActors(this->GetWorld(),
 		startLocation,
-		1500.0f, // ±¸Ã¼ ¹ÝÁö¸§
+		1500.0f, // êµ¬ì²´ ë°˜ì§€ë¦„
 		objectTypes,
 		nullptr,
 		ignoreActors,
@@ -438,13 +436,13 @@ void APlayableCharacter::initAssets()
 	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	m_SpringArm->TargetArmLength = 600;
 
-	// ½ºÇÁ¸µ¾ÏÀÇ È¸Àü °ªÀ» ÄÁÆ®·Ñ È¸Àü °ª°ú µ¿ÀÏÇÏ°Ô ¸ÂÃçÁØ´Ù.
+	// ìŠ¤í”„ë§ì•”ì˜ íšŒì „ ê°’ì„ ì»¨íŠ¸ë¡¤ íšŒì „ ê°’ê³¼ ë™ì¼í•˜ê²Œ ë§žì¶°ì¤€ë‹¤.
 	m_SpringArm->bUsePawnControlRotation = true;
 	m_SpringArm->bInheritPitch = true;
 	m_SpringArm->bInheritRoll = true;
 	m_SpringArm->bInheritYaw = true;
 
-	// true·Î ÇÒ °æ¿ì, Ä«¸Þ¶ó¿Í Ä³¸¯ÅÍ»çÀÌ¿¡ Àå¾Ö¹°ÀÌ ÀÖÀ» °æ¿ì, ÁÜ ±â´ÉÀ» È°¼ºÈ­ ÇØÁØ´Ù.
+	// trueë¡œ í•  ê²½ìš°, ì¹´ë©”ë¼ì™€ ìºë¦­í„°ì‚¬ì´ì— ìž¥ì• ë¬¼ì´ ìžˆì„ ê²½ìš°, ì¤Œ ê¸°ëŠ¥ì„ í™œì„±í™” í•´ì¤€ë‹¤.
 	m_SpringArm->bDoCollisionTest = false;
 
 	// TargetCamera
@@ -453,18 +451,18 @@ void APlayableCharacter::initAssets()
 	
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 
-	// true·Î ÇÒ °æ¿ì, ÄÁÆ®·Ñ·¯ÀÇ È¸Àü¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ È¸Àü½ÃÄÑÁÜ.
+	// trueë¡œ í•  ê²½ìš°, ì»¨íŠ¸ë¡¤ëŸ¬ì˜ íšŒì „ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ íšŒì „ì‹œì¼œì¤Œ.
 	bUseControllerRotationYaw = false;
 
-	// true·Î ÇÒ °æ¿ì, Ä³¸¯ÅÍ°¡ ¿òÁ÷ÀÌ·Á´Â ¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ ÀÚµ¿À¸·Î È¸Àü½ÃÄÑ ÁØ´Ù.
+	// trueë¡œ í•  ê²½ìš°, ìºë¦­í„°ê°€ ì›€ì§ì´ë ¤ëŠ” ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ ìžë™ìœ¼ë¡œ íšŒì „ì‹œì¼œ ì¤€ë‹¤.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
-	// ÄÁÆ®·Ñ·¯°¡ "¿øÇÏ´Â" ¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ È¸ÀüÇÑ´Ù.
-	// Áï, ¿À¸¥ÂÊ+À§¸¦ ´©¸£¸é "Á¤È®È÷" 45µµ ¹æÇâÀ¸·Î Ä³¸¯ÅÍ°¡ È¸ÀüÇØ¼­ ÀÌµ¿ÇÏ´Â ½ÄÀÌ´Ù.
-	// ½ÇÁ¦·Î Ä³¸¯ÅÍÀÇ È¸Àü ¹æÇâÀÌ "µüµü ¶³¾îÁö´Â" ´À³¦À» ÁØ´Ù.
+	// ì»¨íŠ¸ë¡¤ëŸ¬ê°€ "ì›í•˜ëŠ”" ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ íšŒì „í•œë‹¤.
+	// ì¦‰, ì˜¤ë¥¸ìª½+ìœ„ë¥¼ ëˆ„ë¥´ë©´ "ì •í™•ížˆ" 45ë„ ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ê°€ íšŒì „í•´ì„œ ì´ë™í•˜ëŠ” ì‹ì´ë‹¤.
+	// ì‹¤ì œë¡œ ìºë¦­í„°ì˜ íšŒì „ ë°©í–¥ì´ "ë”±ë”± ë–¨ì–´ì§€ëŠ”" ëŠë‚Œì„ ì¤€ë‹¤.
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
-	// È¸ÀüÀ» ºÎµå·´°Ô ¸¸µé¾î ÁÖ±â À§ÇØ RotationRate ¸¦ Á¶Á¤ÇÑ´Ù. °ªÀÌ ³·À»¼ö·Ï Ä«¸Þ¶ó È¸Àü½Ã Ä³¸¯ÅÍ°¡ ÇÑ¹ÚÀÚ ´À¸®°Ô È¸Àü.
+	// íšŒì „ì„ ë¶€ë“œëŸ½ê²Œ ë§Œë“¤ì–´ ì£¼ê¸° ìœ„í•´ RotationRate ë¥¼ ì¡°ì •í•œë‹¤. ê°’ì´ ë‚®ì„ìˆ˜ë¡ ì¹´ë©”ë¼ íšŒì „ì‹œ ìºë¦­í„°ê°€ í•œë°•ìž ëŠë¦¬ê²Œ íšŒì „.
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 300.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }

@@ -48,7 +48,7 @@ public:
 	virtual void BeginPlay() override;
 
 	void RotateActorToKeyInputDirection();
-	void RotateActorToControllerYaw(); // ¾×ÅÍÀÇ zÃàÈ¸Àü°ªÀ» ÄÁÆ®·Ñ·¯ÀÇ zÃàÈ¸Àü°ªÀ¸·Î º¯°æ.
+	void RotateActorToControllerYaw(); // ì•¡í„°ì˜ zì¶•íšŒì „ê°’ì„ ì»¨íŠ¸ë¡¤ëŸ¬ì˜ zì¶•íšŒì „ê°’ìœ¼ë¡œ ë³€ê²½.
 
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
 	void AddInputMappingContext(const FName& inputMappingContextName);
@@ -123,8 +123,8 @@ protected:
 	TObjectPtr<USkillComponent> m_SkillComponent;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
-	TObjectPtr<USpringArmComponent> m_SpringArm; // ÀÌ ÄÄÆ÷³ÍÆ®·Î µî·ÏµÈ ÀÚ½Ä ÄÄÆ÷³ÍÆ®¸¦
-												 // ÀÚ½Å°úÀÇ ÁöÁ¤µÈ °Å¸® ¾È¿¡ À¯ÁöµÇµµ·Ï Ã³¸®ÇÑ´Ù.
+	TObjectPtr<USpringArmComponent> m_SpringArm; // ì´ ì»´í¬ë„ŒíŠ¸ë¡œ ë“±ë¡ëœ ìì‹ ì»´í¬ë„ŒíŠ¸ë¥¼
+												 // ìì‹ ê³¼ì˜ ì§€ì •ëœ ê±°ë¦¬ ì•ˆì— ìœ ì§€ë˜ë„ë¡ ì²˜ë¦¬í•œë‹¤.
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	TObjectPtr<UCameraComponent> m_TargetCamera;
@@ -159,10 +159,5 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "OnHitEffect")
 	TSubclassOf<UCameraShakeBase> m_OnHitCameraShake;
 	
-	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
-	TSubclassOf<UCameraShakeBase> m_ParryingShake;
-	
-	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
-	TObjectPtr<USoundWave> m_ParryingSound;
 	
 };
