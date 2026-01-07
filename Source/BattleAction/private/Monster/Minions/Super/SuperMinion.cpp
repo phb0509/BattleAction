@@ -78,6 +78,8 @@ void ASuperMinion::printLog()
 	FString isDead = FString::FromInt(IsDead());
 	FString log3 = Tags[0].ToString() + " :: IsDead :: " + isDead;
 	GEngine->AddOnScreenDebugMessage(103, 0.1f, FColor::Green,FString::Printf(TEXT("%s"), *log3));
+	
+	GEngine->AddOnScreenDebugMessage(104, 0.1f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), GetCurSpeed()));
 }
 
 void ASuperMinion::initAssets()
