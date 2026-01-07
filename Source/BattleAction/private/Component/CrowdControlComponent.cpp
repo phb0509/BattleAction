@@ -107,7 +107,7 @@ void UCrowdControlComponent::OnGroggy()
 				}
 
 				ClearGroggyTimerHandle();
-				OnEndedGroggy.Broadcast(); // ���׹̳� 100% + ü�� �� ���׹̳� �ڰ�ȸ�� ����.
+				OnEndedGroggy.Broadcast(); // 스테미너 100%회복 및, 다시 체력재생 시작.
 			},
 		m_CrowdControlSetting.groggyTime,
 		false);
@@ -115,18 +115,18 @@ void UCrowdControlComponent::OnGroggy()
 
 void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlType::Down) // �ٿ� ����
+	if (m_CurCrowdControlState == ECrowdControlType::Down) // 다운중에 넉백공격 받을경우,
 	{
 		CallTimer_CheckOnGround();
 	}
-	else if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ��� ����
+	else if (m_CurCrowdControlState == ECrowdControlType::Airborne) // 에어본중에 넉백공격 받을경우,
 	{
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_CheckOnGround();
 	} 
-	else // �����̻� X or �˹� or �׷α�
+	else // CC상태 아니거나, 넉백중이거나
 	{
 		this->SetCrowdControlState(ECrowdControlType::Knockback);
 		
@@ -141,7 +141,7 @@ void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHit
 
 }
 
-void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // �˹�CC�ð� ���� �� ȣ��
+void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // 넉백끝난이후 호출
 {
 	if (m_Owner->IsDead())
 	{
@@ -169,19 +169,19 @@ void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // �˹�
 
 void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlType::Airborne) // ��� ����
+	if (m_CurCrowdControlState == ECrowdControlType::Airborne) // 에어본중에 다운공격 받을경우,
 	{
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 		DisableMovementComponentForDuration(0.2f); 
 	}
-	else // �����̻� X or �ٿ� or �˹� or �׷α�
+	else // 이외의 경우에 다운공격 받을 경우, 다운몽타주 재생하며 다운 유지.
 	{
 		this->SetCrowdControlState(ECrowdControlType::Down);
 		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 		
 		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
-		const float downTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f; // CC�ð��� ��Ÿ������ð����� ª����츦 ����� ������
+		const float downTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f; // 다운시간 너무 짧은경우를 대비하기 위한 약간의 오프셋값.
 		
 		GetOwner()->GetWorldTimerManager().SetTimer(
 			m_CrowdControlTimerHandle,
@@ -192,7 +192,7 @@ void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInfor
 	}
 }
 
-void UCrowdControlComponent::CallTimer_CheckOnGround()
+void UCrowdControlComponent::CallTimer_CheckOnGround() // 공중에 띄워질 경우(에어본 공격), 땅에 떨어질 때 까지 체크하는 함수 호출할 타이머함수.
 {
 	m_Owner->GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 		this,
@@ -202,7 +202,7 @@ void UCrowdControlComponent::CallTimer_CheckOnGround()
 			-1);
 }
 
-void UCrowdControlComponent::CheckOnGround() // OnGround���� ƽ���� ȣ��Ǿ����� �Լ�.
+void UCrowdControlComponent::CheckOnGround() 
 {
 	if (m_Owner->IsDead())
 	{
@@ -265,13 +265,13 @@ void UCrowdControlComponent::TakeAttack_Airborne(AActor* instigator, const FHitI
 {
 	FVector airbornePower = {0.0f, 0.0f, attackInfo.airbornePower};
 
-	if (m_CurCrowdControlState == ECrowdControlType::Down) // �ٿ� ����
+	if (m_CurCrowdControlState == ECrowdControlType::Down) // 다운상태일 때, 에어본공격 받을경우
 	{
-		airbornePower.Z /= 2; // �ٿ���¿����� ����� �������� ���δ�.
+		airbornePower.Z /= 2; // 다운상태인 경우에는 약간만 에어본 되게 보정
 		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 	}
-	else // �˹� or ��� or �׷α�
+	else // 이외의 상태에선 에어본몽타주 재생 및 상태유지.
 	{
 		this->SetCrowdControlState(ECrowdControlType::Airborne);
 		
@@ -310,14 +310,14 @@ UCharacterMovementComponent* UCrowdControlComponent::getCharacterMovementCompone
 
 void UCrowdControlComponent::playCrowdControlMontage(const ECrowdControlType crowdControlType, const int32 hitDirection)
 {
-	if (!m_CrowdControlSetting.crowdControlMontages.Contains(crowdControlType))
+	if (!m_CrowdControlSetting.crowdControlMontages.Contains(crowdControlType)) // CC상태자체가 없는경우,
 	{
 		return;
 	}
 	
 	auto montages = m_CrowdControlSetting.crowdControlMontages[crowdControlType].montages;
 
-	if (montages.Num() >= 1) // �ּ� 1���̻�������
+	if (montages.Num() >= 1) // CC상태는 설정 및 몽타주 있는 경우,
 	{
 		if (montages.Num() > hitDirection)
 		{
@@ -338,7 +338,7 @@ void UCrowdControlComponent::endedCrowdControl()
 void UCrowdControlComponent::BreakCrowdControlState()
 {
 	ClearCrowdControlTimerHandle();
-	ClearGroggyTimerHandle(); // �̰� ���� �ȵǼ� ��Ŀ������ �� isgroggy�� true.
+	ClearGroggyTimerHandle(); 
 	
 	this->SetCrowdControlState(ECrowdControlType::None);
 }
