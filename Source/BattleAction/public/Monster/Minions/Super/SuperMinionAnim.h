@@ -14,4 +14,6 @@ class BATTLEACTION_API USuperMinionAnim : public UAnimInstanceBase
 public:
 	USuperMinionAnim();
 	
+	// virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	// virtual void NativeThreadSafeUpdateAnimation(float DeltaSeconds) override;
 };
