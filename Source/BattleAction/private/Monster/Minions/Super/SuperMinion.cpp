@@ -15,7 +15,7 @@ int32 ASuperMinion::TagCount(0);
 ASuperMinion::ASuperMinion()
 {
 	PrimaryActorTick.bCanEverTick = true; 
-	//AIControllerClass = ASuperMinionAIController::StaticClass();
+	AIControllerClass = ASuperMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
