@@ -26,8 +26,10 @@ void UCharging_OnGround::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
+	
+	m_OwnerAnimInstance->Montage_Play(m_ChargingMontage, 1.0f);
 	
 	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
 	
@@ -43,9 +45,6 @@ void UCharging_OnGround::Execute()
 		m_ChargingDuration,
 		false);
 
-	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
-	
-	m_OwnerAnimInstance->Montage_Play(m_ChargingMontage, 1.0f);
 	
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	check(uiManager != nullptr);

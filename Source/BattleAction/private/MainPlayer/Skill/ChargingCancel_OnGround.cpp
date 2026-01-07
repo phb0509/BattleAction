@@ -30,18 +30,16 @@ void UChargingCancel_OnGround::Execute()
 {
 	Super::Execute();
 
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
+	ownerSkillComponent->SetCanChargingSkill(false);
 	
 	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
 	
 	m_Owner->GetWorldTimerManager().ClearTimer(chargingTimer);
 	m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
 	m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
-
-	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
-	ownerSkillComponent->SetCanChargingSkill(false);
-
+	
 	m_OwnerAnimInstance->Montage_Play(m_StopChargingMontage,1.0f);
 
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();

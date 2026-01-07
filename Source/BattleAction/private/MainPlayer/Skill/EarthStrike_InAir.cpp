@@ -93,13 +93,12 @@ void UEarthStrike_InAir::attack()
 	{
 		for (const FHitResult& hitResult : hitResults)
 		{
-			ACharacterBase* hitActor = Cast<ACharacterBase>(hitResult.GetActor());
-			const FName atatckName = TEXT("EarthStrike");
+			ACharacterBase* hitActor = CastChecked<ACharacterBase>(hitResult.GetActor());
+			const FName attackName = TEXT("EarthStrike");
 				
-			if (hitActor != nullptr && !m_Owner->HasContainHitActor(atatckName, hitActor))
+			if (!m_Owner->HasContainHitActor(attackName, hitActor))
 			{
-				//m_Owner->AddHitActorsByMe(atatckName, hitActor);
-				battleManager->Attack(m_Owner.Get(), atatckName, hitActor, hitResult.Location);
+				battleManager->Attack(m_Owner.Get(), attackName, hitActor, hitResult.Location);
 			}
 		}
 	}

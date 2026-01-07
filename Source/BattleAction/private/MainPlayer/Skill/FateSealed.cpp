@@ -94,15 +94,11 @@ void UFateSealed::findTargets()
 	
 	for (FHitResult& hitResult : hitResults)
 	{
-		AMonster* targetMonster = Cast<AMonster>(hitResult.GetActor());
-
-		if (targetMonster != nullptr)
-		{
-			targetMonster->GetMesh()->SetCustomDepthStencilValue(2);
-			targetMonster->Pause();
+		AMonster* targetMonster = CastChecked<AMonster>(hitResult.GetActor());
+		targetMonster->GetMesh()->SetCustomDepthStencilValue(2);
+		targetMonster->Pause();
 			
-			m_TargetMonsters.Add(targetMonster);
-		}
+		m_TargetMonsters.Add(targetMonster);
 	}
 	
 	m_CurTargetIndex = 0;
@@ -135,7 +131,7 @@ void UFateSealed::moveToNextTarget()
 	}
 }
 
-void UFateSealed::onFateSealedEnded() // °ø°İ¸ùÅ¸ÁÖ Àç»ı ÀÌÈÄ,
+void UFateSealed::onFateSealedEnded() // ê³µê²©ëª½íƒ€ì£¼ ì¬ìƒ ì´í›„,
 {
 	if (m_CurTarget.IsValid())
 	{
@@ -194,9 +190,7 @@ void UFateSealed::updateAllStencilValues()
 
 void UFateSealed::finishSkill()
 {
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
-	
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	ownerSkillComponent->SetCanChargingSkill(false);
 	
 	m_Owner->SetActorLocation(m_SkillStartLocation);
@@ -247,7 +241,7 @@ void UFateSealed::executeStaggeredAttack()
 			continue;	
 		}
 					
-		// ½ÇÁ¦ °ø°İÀû¿ëÅ¸ÀÌ¸Ó Æ¯Á¤½Ã°£ °£°İÀ¸·Î ¼ÂÆÃ
+		// ì‹¤ì œ ê³µê²©ì ìš©íƒ€ì´ë¨¸ íŠ¹ì •ì‹œê°„ ê°„ê²©ìœ¼ë¡œ ì…‹íŒ…
 		FTimerHandle attackTimer;
 		m_Owner->GetWorldTimerManager().SetTimer
 		(
@@ -264,7 +258,6 @@ void UFateSealed::executeStaggeredAttack()
 			},
 			m_FinishAttackCallTime += m_FinishAttackDelayGap,
 			false
-						
 		);
 	}
 
@@ -273,7 +266,7 @@ void UFateSealed::executeStaggeredAttack()
 
 bool UFateSealed::CanExecuteSkill() const
 {
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState() &&
 		ownerSkillComponent->CanChargingSkill();

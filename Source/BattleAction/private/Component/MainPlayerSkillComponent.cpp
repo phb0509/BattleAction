@@ -123,7 +123,7 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
-	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // ¾î¶² ½ºÅ³ÀÌµç '³¡±îÁö(not Interrupted)' Àç»ı ÈÄ Idle·Î ÀüÈ¯.
+	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // ì–´ë–¤ ìŠ¤í‚¬ì´ë“  'ëê¹Œì§€(not Interrupted)' ì¬ìƒ í›„ Idleë¡œ ì „í™˜.
 }
 
 void UMainPlayerSkillComponent::printLog()

@@ -26,8 +26,7 @@ void UExecution_OnGround::Initialize()
 
 	check(m_ExecutionMontage != nullptr);
 	
-	APlayerController* pc = Cast<APlayerController>(m_Owner->GetController());
-	check(pc != nullptr);
+	APlayerController* pc = CastChecked<APlayerController>(m_Owner->GetController());
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Execution_OnGround"),
 	[=, this]()
@@ -46,9 +45,7 @@ void UExecution_OnGround::Execute()
 
 	if (target != nullptr && target->IsGroggy())
 	{
-		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-		check(ownerSkillComponent != nullptr);
-		
+		UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_NonTargeting_OnGround);
 
 		m_Owner->RotateToTarget(target);
@@ -68,7 +65,7 @@ ACharacterBase* UExecution_OnGround::findTarget() const
 	
 	UKismetSystemLibrary::SphereOverlapActors(m_Owner->GetWorld(),
 		startLocation,
-		200.0f, // ±¸Ã¼ ¹ÝÁö¸§
+		200.0f, // êµ¬ì²´ ë°˜ì§€ë¦„
 		objectTypes,
 		nullptr,
 		ignoreActors,
@@ -90,10 +87,9 @@ ACharacterBase* UExecution_OnGround::findTarget() const
 
 void UExecution_OnGround::playExecutionCamera()
 {
-	APlayerController* pc = Cast<APlayerController>(m_Owner->GetController());
-	check(pc != nullptr);
-        
-	// Ä«¸Þ¶ó À§Ä¡ ¼ÂÆÃ. (ÇÃ·¹ÀÌ¾î ÁÂÃøÁ¤¸é¿¡¼­ º¼ ¼ö ÀÖ°Ô)
+	APlayerController* pc = CastChecked<APlayerController>(m_Owner->GetController());
+	    
+	// ì¹´ë©”ë¼ ìœ„ì¹˜ ì…‹íŒ…. (í”Œë ˆì´ì–´ ì¢Œì¸¡ì •ë©´ì—ì„œ ë³¼ ìˆ˜ ìžˆê²Œ)
 	const FVector ownerLocation = m_Owner->GetActorLocation();
 	FVector cameraInverseForward = m_Owner->GetActorRightVector() * -1.0f;
 	cameraInverseForward.Z = 0.0f;
@@ -104,8 +100,8 @@ void UExecution_OnGround::playExecutionCamera()
 
 	FVector offset = m_ExecutionCamera->GetActorRightVector() * -1.0f * m_CameraLocationLeftOffset;
 	cameraLocation += offset;
-	m_ExecutionCamera->SetActorLocation(cameraLocation);
 	
+	m_ExecutionCamera->SetActorLocation(cameraLocation);
 	m_ExecutionCamera->GetCameraComponent()->SetFieldOfView(m_CameraFOV);
 	m_ExecutionCamera->GetCameraComponent()->AspectRatio = 2.0f;
 		

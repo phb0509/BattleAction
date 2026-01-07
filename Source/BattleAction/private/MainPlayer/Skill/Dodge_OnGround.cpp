@@ -38,19 +38,16 @@ void UDodge_OnGround::Execute()
 		false 
 	);
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_NonTargeting_OnGround);
 	
 	m_Owner->BreakCrowdControlState();
-	
 	m_OwnerAnimInstance->StopAllMontages(0.0f);
 	
-	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_NonTargeting_OnGround);
-
-	// 키입력에 따른 월드방향벡터 구하기.
+	// ?ㅼ엯?μ뿉 ?곕Ⅸ ?붾뱶諛⑺뼢踰≫꽣 援ы븯湲?
 	const FVector worldKeyInputDirection = m_Owner->GetWorldKeyInputDirection(m_Owner->GetDirectionIndexFromKeyInput());
 
-	// 캐릭터기준으로 어디방향인지 구하기.
+	// 罹먮┃?곌린以?쇰줈 ?대뵒諛⑺뼢?몄? 援ы븯湲?
 	const int32 localDirectionIndex = m_Owner->GetLocalDirectionIndex(worldKeyInputDirection);
 	const FString jumpSection = FString::FromInt(localDirectionIndex);
 	
@@ -60,7 +57,7 @@ void UDodge_OnGround::Execute()
 	FVector targetVerticalVector;
 	FVector targetHorizontalVector;
 	
-	if (!m_Owner->IsMoveKeyPressed()) // 키입력 없을 시,
+	if (!m_Owner->IsMoveKeyPressed()) // ?ㅼ엯???놁쓣 ??
 	{
 		targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_MoveDistance;
 		targetHorizontalVector = {0.0f, 0.0f, 0.0f};

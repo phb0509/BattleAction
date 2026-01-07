@@ -119,7 +119,6 @@ void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
 {
 	m_DeathDissolveTimeline.SetNewTime(0.0f);
 	m_DeathTimeline.SetNewTime(0.0f); // 초기화
-
 	this->Deactivate();
 }
 
@@ -132,7 +131,7 @@ void AMonster::Initialize()
 	uiManager->CreateMonsterHPBar(this);
 
 	// Animation Budget 최적화: 화면에 렌더링될 때만 애니메이션 업데이트
-	//GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	
 	// GetMesh()->bAutoCalculateSignificance = true;
 	// GetMesh()->bAutoRegisterWithBudgetAllocator = true;
@@ -144,6 +143,7 @@ void AMonster::Initialize()
 	// GetMesh()->AnimUpdateRateParams->BaseNonRenderedUpdateRate = 4;  // 화면 밖: 4프레임마다 업데이트
 	// GetMesh()->AnimUpdateRateParams->MaxEvalRateForInterpolation = 4; // 보간 시 최대 평가 레이트
 }
+
 
 void AMonster::Activate()
 {
@@ -171,7 +171,7 @@ void AMonster::Activate()
 
 	// 모든 컴포넌트 Tick 활성화
 	SetAllComponentsTickEnabled(true);
-
+	
 	OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
 	
 	// UI
@@ -253,10 +253,11 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
 	Super::PlayOnHitEffect(hitInfo);
 
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 諛붾줈 遺됯쾶 ?덈떎媛,
 	
 	GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
-	GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
+	GetWorldTimerManager().SetTimer(
+		m_DiffuseRatioOnHitTimer,
 	[this]()
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(

@@ -95,7 +95,7 @@ AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVecto
 
 	if (actor == nullptr) // 액터풀이 꽉찼다면 (빈게 없다면)
 	{
-		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // 추가생성.
+		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // 異붽??앹꽦.
 		actor = spawnActor(classType, spawnLocation);
 	}
 

@@ -34,8 +34,7 @@ void UNormalAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
 	{
@@ -69,8 +68,7 @@ void UNormalAttack_OnGround::Execute()
 
 void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 {
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
 	{

@@ -85,7 +85,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 					m_Owner->AddHitActorsByMe(m_AttackName, hitActor);
 					battleManager->Attack(m_Owner.Get(), m_AttackName, hitActor, hitResult.Location);
 
-					// ÀÌÆåÆ®, »ç¿îµå, Ä«¸Ş¶ó½¦ÀÌÅ© µî
+					// ì´í™íŠ¸, ì‚¬ìš´ë“œ, ì¹´ë©”ë¼ì‰ì´í¬ ë“±
 					playHitEffect(hitResult.ImpactPoint);
 				}
 			}

@@ -47,8 +47,7 @@ void UNormalAttack_InAir::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_InAir))
 	{
@@ -58,6 +57,7 @@ void UNormalAttack_InAir::Execute()
 			
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
+			
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			

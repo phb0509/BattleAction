@@ -33,7 +33,7 @@ void UMonsterHPBar::NativeConstruct()
 		progressBarStyle.FillImage.SetResourceObject(m_HPProgressBarMaterialInstanceDynamic.Get());
 		m_HPProgressBar->SetWidgetStyle(progressBarStyle);
 
-		//m_HPProgressBar->GetWidgetStyle().FillImage.SetResourceObject(m_HPProgressBarMaterialInstanceDynamic.Get()); // ±¸¹öÀü
+		//m_HPProgressBar->GetWidgetStyle().FillImage.SetResourceObject(m_HPProgressBarMaterialInstanceDynamic.Get()); // êµ¬ë²„ì „
 	}
 	
 	m_GuardRegainProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_GuardRegainProgressBar")));
@@ -93,7 +93,7 @@ void UMonsterHPBar::OnDamagedHPBar()
 	}
 }
 
-void UMonsterHPBar::OnRecoveredHPBar() // Æ½¸¶´Ù È£Ãâ.
+void UMonsterHPBar::OnRecoveredHPBar() // í‹±ë§ˆë‹¤ í˜¸ì¶œ.
 {
 	m_HPProgressBar->SetPercent(m_OwnerStatComponent->GetHPRatio());
 
@@ -119,8 +119,8 @@ void UMonsterHPBar::updateGuardRegainProgressBar()
 void UMonsterHPBar::OnStaminaIsZero()
 {
 	// Groggy
-	m_HPBarBorder->SetBrushFromMaterial(m_HPBarBorderMaterialInstance); // Border ÇÏ¾é°Ô
-	PlayAnimation(m_GroggyAnimation); // Ä¿Áö¸ç Èçµé¸®´Â ¾Ö´Ï¸ŞÀÌ¼Ç
+	m_HPBarBorder->SetBrushFromMaterial(m_HPBarBorderMaterialInstance); // Border í•˜ì–—ê²Œ
+	PlayAnimation(m_GroggyAnimation); // ì»¤ì§€ë©° í”ë“¤ë¦¬ëŠ” ì• ë‹ˆë©”ì´ì…˜
 	
 	// FTimerHandle timer;
 	// GetWorld()->GetTimerManager().SetTimer
@@ -128,7 +128,7 @@ void UMonsterHPBar::OnStaminaIsZero()
 	// 	timer,
 	// 	[this]()
 	// 	{
-	// 		m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border ¿ø·¡ ÅØ½ºÃÄ·Î º¹±¸
+	// 		m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border ì›ë˜ í…ìŠ¤ì³ë¡œ ë³µêµ¬
 	// 		
 	// 		//startWhiteBlink();
 	// 		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
@@ -146,9 +146,9 @@ void UMonsterHPBar::OnStaminaIsZero()
 
 void UMonsterHPBar::onGroggyAnimationEnded()
 {
-	m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border ¿ø·¡ ÅØ½ºÃÄ·Î º¹±¸
+	m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border ì›ë˜ í…ìŠ¤ì³ë¡œ ë³µêµ¬
 			
-	//startWhiteBlink(); // Ã¼·Â¹Ù °¢°¢ Å¸ÀÌ¸ÓÈ£Ãâ
+	//startWhiteBlink(); // ì²´ë ¥ë°” ê°ê° íƒ€ì´ë¨¸í˜¸ì¶œ
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	check(uiManager != nullptr);
 	
@@ -173,7 +173,7 @@ void UMonsterHPBar::startWhiteBlink()
 	
 			if (m_WhiteBlinkLerpAlpha > 1.0f || m_WhiteBlinkLerpAlpha < 0.0f)
 			{
-				m_WhiteBlinkDirection *= -1; // Áõ°¨¹æÇâÀüÈ¯.
+				m_WhiteBlinkDirection *= -1; // ì¦ê°ë°©í–¥ì „í™˜.
 			}
 			
 			m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), m_WhiteBlinkLerpAlpha);
@@ -197,7 +197,7 @@ void UMonsterHPBar::InitWhiteBlink()
 	m_WhiteBlinkDirection = 1;
 }
 
-bool UMonsterHPBar::WhiteBlinkTick() // UI Manager¿¡¼­ Æ½¸¶´Ù È£Ãâ.
+bool UMonsterHPBar::WhiteBlinkTick() // UI Managerì—ì„œ í‹±ë§ˆë‹¤ í˜¸ì¶œ.
 {
 	m_WhiteBlinkLerpAlpha += 0.03f * m_WhiteBlinkSpeed * m_WhiteBlinkDirection;
 	m_WhiteBlnkStopAccumulatedTime += 0.03f;
@@ -213,8 +213,8 @@ bool UMonsterHPBar::WhiteBlinkTick() // UI Manager¿¡¼­ Æ½¸¶´Ù È£Ãâ.
 	{
 		m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 		
-		return false; // ±×·Î±â ³¡³ª¼­ UIManager Æ½¾÷µ¥ÀÌÆ®¹è¿­¿¡¼­ Á¦°Å.
+		return false; // ê·¸ë¡œê¸° ëë‚˜ì„œ UIManager í‹±ì—…ë°ì´íŠ¸ë°°ì—´ì—ì„œ ì œê±°.
 	}
 	
-	return true; // °è¼Ó ¾÷µ¥ÀÌÆ®.
+	return true; // ê³„ì† ì—…ë°ì´íŠ¸.
 }

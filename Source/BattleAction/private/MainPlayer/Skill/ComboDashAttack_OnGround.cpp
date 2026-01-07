@@ -18,8 +18,7 @@ void UComboDashAttack_OnGround::Initialize()
 
 	check(m_ComboDashAttackMontage != nullptr);
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
 	[=, this]()
@@ -43,7 +42,7 @@ void UComboDashAttack_OnGround::Execute()
 
 bool UComboDashAttack_OnGround::CanExecuteSkill() const
 {
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState() &&
 		ownerSkillComponent->CanChargingSkill();

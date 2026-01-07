@@ -56,7 +56,7 @@ void USkillSlots::CreateSkillList(USkillComponent* skillComponent)
 				skillSlot->SetSkill(skill, paddingValue);
 				skillSlots.skillSlots.Add(skillSlot);
 
-				if (bIsFirst) // ÄÁÅØ½ºÆ®¸¶´Ù ÇÑ¹ø¾¿¸¸ 
+				if (bIsFirst) // ì»¨í…ìŠ¤íŠ¸ë§ˆë‹¤ í•œë²ˆì”©ë§Œ 
 				{
 					m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
 				}
@@ -81,12 +81,12 @@ void USkillSlots::ChangeSkillSlots()
 	
 	if (m_CurModeName != highestPriorityModeName)
 	{
-		for (TObjectPtr<USkillSlot> skillSlot : m_SkillSlots[m_CurModeName].skillSlots) // ÇöÀç(¹Ù²î±â Àü) ÄÁÅØ½ºÆ® °¢ ½ºÅ³½½·Ô »èÁ¦.
+		for (TObjectPtr<USkillSlot> skillSlot : m_SkillSlots[m_CurModeName].skillSlots) // í˜„ìž¬(ë°”ë€Œê¸° ì „) ì»¨í…ìŠ¤íŠ¸ ê° ìŠ¤í‚¬ìŠ¬ë¡¯ ì‚­ì œ.
 		{
 			skillSlot->RemoveFromParent();
 		}
 	
-		for (TObjectPtr<USkillSlot> skillSlot : m_SkillSlots[highestPriorityModeName].skillSlots) // ¹Ù²ð ÄÁÅØ½ºÆ® ½ºÅ³½½·Ô Ãß°¡.
+		for (TObjectPtr<USkillSlot> skillSlot : m_SkillSlots[highestPriorityModeName].skillSlots) // ë°”ë€” ì»¨í…ìŠ¤íŠ¸ ìŠ¤í‚¬ìŠ¬ë¡¯ ì¶”ê°€.
 		{
 			m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
 		}

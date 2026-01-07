@@ -13,7 +13,7 @@ class USkill;
 
 
 USTRUCT(Atomic) 
-struct FSkillClassList // Æ¯Á¤ ÀÎÇ²¸ÅÇÎÄÁÅØ½ºÆ®¿¡ ¼ÓÇØÀÖ´Â ½ºÅ³µé. ex) InAir¸¸ÀÇ ½ºÅ³µé..
+struct FSkillClassList // íŠ¹ì • ì¸í’‹ë§¤í•‘ì»¨í…ìŠ¤íŠ¸ì— ì†í•´ìˆëŠ” ìŠ¤í‚¬ë“¤. ex) InAirë§Œì˜ ìŠ¤í‚¬ë“¤..
 {
 	GENERATED_USTRUCT_BODY() 
 
@@ -44,7 +44,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	void ExecuteSkill(const FName& inputMappingContextName, const FName& skillName);
-	void InitGravityScaleAfterAttack(); // Æ¯Á¤°ø°İµé(°øÁß¿¡ À¯Áö½ÃÅ°±âÀ§ÇØ Áß·Â°ªÀ» ¾àÇÏ°Ô ¸¸µé¾î³õ´Â) ÀÌÈÄ ´Ù½Ã Á¤»ó°ªÀ¸·Î ÃÊ±âÈ­.
+	void InitGravityScaleAfterAttack(); // íŠ¹ì •ê³µê²©ë“¤(ê³µì¤‘ì— ìœ ì§€ì‹œí‚¤ê¸°ìœ„í•´ ì¤‘ë ¥ê°’ì„ ì•½í•˜ê²Œ ë§Œë“¤ì–´ë†“ëŠ”) ì´í›„ ë‹¤ì‹œ ì •ìƒê°’ìœ¼ë¡œ ì´ˆê¸°í™”.
 	
 	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
 	const TMap<FName, FSkillList>* GetSkillList() const { return &m_SkillList; }

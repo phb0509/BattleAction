@@ -50,7 +50,7 @@ void USkill::Execute()
 
 	if (m_bIsAddedSkillSlots)
 	{
-		OnExecute.Broadcast(); // ½ºÅ³¾ÆÀÌÄÜ Äğ´Ù¿î ¾÷µ¥ÀÌÆ®.
+		OnExecute.Broadcast(); // ìŠ¤í‚¬ì•„ì´ì½˜ ì¿¨ë‹¤ìš´ ì—…ë°ì´íŠ¸.
 	}
 }
 

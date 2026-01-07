@@ -34,8 +34,7 @@ void UStatComponent::BeginPlay()
 
 void UStatComponent::OnDamageHP(const float damage)
 {
-	m_CurHP = FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP); // �����
-	
+	m_CurHP = FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP); // 
 	if (m_CurHP < KINDA_SMALL_NUMBER) 
 	{
 		m_CurHP = 0.0f;
@@ -46,7 +45,7 @@ void UStatComponent::OnDamageHP(const float damage)
 		RecoveryHP();
 	}
 
-	OnDamagedHP.Broadcast(); // UIü�¹� ������Ʈ.
+	OnDamagedHP.Broadcast(); // UI체력바 업데이트.
 }
 
 void UStatComponent::RecoveryHP()

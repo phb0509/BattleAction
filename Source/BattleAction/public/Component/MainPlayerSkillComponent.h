@@ -39,7 +39,7 @@ public:
 	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
 	void DeactivateStrikeAttack() { ExtendStrikeActivateDecisionTime(); }
 	
-	void ExtendStrikeActivateDecisionTime(); // °­°ø°İÅ°ÆÇÁ¤À» Á» ´õ ¿©À¯·Ó°ÔÇÏ±âÀ§ÇÑ Å¸ÀÌ¸ÓÈ£Ãâ ÇÔ¼ö.
+	void ExtendStrikeActivateDecisionTime(); // ê°•ê³µê²©í‚¤íŒì •ì„ ì¢€ ë” ì—¬ìœ ë¡­ê²Œí•˜ê¸°ìœ„í•œ íƒ€ì´ë¨¸í˜¸ì¶œ í•¨ìˆ˜.
 	
 	
 	FORCEINLINE bool IsStrikeAttackActive() const { return m_bIsStrikeAttackActive; }

@@ -19,7 +19,7 @@ Utility::~Utility()
 {
 }
 
-int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // °ø°İÇÑ ¾×ÅÍÀ§Ä¡, °ø°İ´çÇÑ ¾×ÅÍ
+int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // ê³µê²©í•œ ì•¡í„°ìœ„ì¹˜, ê³µê²©ë‹¹í•œ ì•¡í„°
 {
 	if (IsValid(hitActor))
 	{
@@ -27,11 +27,11 @@ int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* 
 	}
 	
 	const FVector forward = hitActor->GetActorForwardVector();
-	FVector toActor = instigatorLocation - hitActor->GetActorLocation(); // hitActor -> attackActor º¤ÅÍ.
+	FVector toActor = instigatorLocation - hitActor->GetActorLocation(); // hitActor -> attackActor ë²¡í„°.
 	toActor.Normalize();
 	
 	const float cosTheta = FVector::DotProduct(forward, toActor);
-	const float theta = FMath::Acos(cosTheta); // Àü¹æº¤ÅÍ±âÁØ ÇÃ·¹ÀÌ¾î
+	const float theta = FMath::Acos(cosTheta); // ì „ë°©ë²¡í„°ê¸°ì¤€ í”Œë ˆì´ì–´
 	const FVector cross = FVector::CrossProduct(forward, toActor);
 	
 	if (theta >= 0.0f && theta < PI / 4) // Front

@@ -38,8 +38,7 @@ void UUpperAttack_OnGround::Execute()
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
-		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-		check(ownerSkillComponent != nullptr);
+		UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 		
 		if (ownerSkillComponent->IsStrikeAttackActive())
 		{

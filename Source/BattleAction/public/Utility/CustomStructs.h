@@ -67,9 +67,9 @@ struct FAttackInformation
 public:
 	FName attackName;
 	float damageRatio;
-	ECrowdControlType crowdControlType; // CC±â Á¾·ù
-	float crowdControlTime; // CC±â Áö¼Ó½Ã°£
-	float knockBackDistance; // ¹Ğ·ÁÁö´Â Á¤µµ
+	ECrowdControlType crowdControlType; // CCê¸° ì¢…ë¥˜
+	float crowdControlTime; // CCê¸° ì§€ì†ì‹œê°„
+	float knockBackDistance; // ë°€ë ¤ì§€ëŠ” ì •ë„
 	float airbornePower;
 	float staminaDamage;
 };
@@ -86,9 +86,9 @@ public:
 	float finalDamage;
 	bool bIsCriticalAttack;
 	int32 hitDirection;
-	ECrowdControlType crowdControlType; // CC±â Á¾·ù
-	float crowdControlTime; // CC±â Áö¼Ó½Ã°£
-	float knockBackDistance; // ¹Ğ·ÁÁö´Â Á¤µµ
+	ECrowdControlType crowdControlType; // CCê¸° ì¢…ë¥˜
+	float crowdControlTime; // CCê¸° ì§€ì†ì‹œê°„
+	float knockBackDistance; // ë°€ë ¤ì§€ëŠ” ì •ë„
 	float airbornePower;
 	float staminaDamage;
 };

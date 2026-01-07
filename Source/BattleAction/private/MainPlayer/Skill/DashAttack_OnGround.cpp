@@ -31,14 +31,12 @@ void UDashAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	check(ownerSkillComponent != nullptr);
+	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
-	
-	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
 	m_OwnerAnimInstance->Montage_Play(m_DashAttackMontage, 1.0f);
 }

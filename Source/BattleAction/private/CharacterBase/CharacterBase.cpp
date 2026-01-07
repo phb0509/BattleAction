@@ -12,7 +12,7 @@
 #include "Component/CrowdControlComponent.h"
 
 
-int32 attackCount = 0; // �α׿� �ӽð�
+int32 attackCount = 0; // 로그용
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
 
@@ -34,7 +34,7 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	attackCount = 0; // �α���¿�.
+	attackCount = 0; // 로그용
 
 	check(IsValid(m_StatComponent));
 	check(IsValid(m_CrowdControlComponent));
@@ -53,9 +53,8 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 	const float _finaldamage = m_StatComponent->CalculateFinalDamage(finalDamage); 
 
 	m_StatComponent->OnDamageHP(_finaldamage);
-	m_LastHitDirection = Utility::GetHitDirection(instigator->GetActorLocation(), this); // �ǰݹ��� ���.
+	m_LastHitDirection = Utility::GetHitDirection(instigator->GetActorLocation(), this); // 占실격뱄옙占쏙옙 占쏙옙占?
 	
-	// �ǰ����� ����.
 	const FHitInformation hitInfo =
 	{
 		attackInfo->attackName,
@@ -71,7 +70,7 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 		attackInfo->staminaDamage
 	};
 	
-	OnTakeDamage.Broadcast(hitInfo); // ������UI �� HitEffect
+	OnTakeDamage.Broadcast(hitInfo); // UI나 이펙트
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
 	{
@@ -81,7 +80,7 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 		}
 	}
 	
-	// �α׿�
+	// 로그용
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(_finaldamage) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
@@ -121,7 +120,7 @@ void ACharacterBase::playDeathMontage(const int32 hitDirection)
 {
 	m_AnimInstanceBase->StopAllMontages(0.0f);
 	
-	if (m_DeathMontages.Num() >= 1) // �ּ� 1���̻�������
+	if (m_DeathMontages.Num() >= 1) 
 	{
 		if (m_DeathMontages.Num() > hitDirection)
 		{

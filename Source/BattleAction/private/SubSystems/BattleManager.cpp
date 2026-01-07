@@ -62,11 +62,11 @@ FCollisionObjectQueryParams UBattleManager::MakeCollisionObjectParams(const ACha
 	
 	if (const APlayableCharacter* playableCharacter = Cast<APlayableCharacter>(owner))
 	{
-		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1); // ¸ó½ºÅÍ¿Ë HitCollider.
+		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1); // ëª¬ìŠ¤í„°ì˜¹ HitCollider.
 	}
 	else if (const AMonster* monster = Cast<AMonster>(owner))
 	{
-		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel5); // ÇÃ·¹ÀÌ¾î¿ë HitCollider.
+		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel5); // í”Œë ˆì´ì–´ìš© HitCollider.
 	}
 
 	return collisionObjectParams;

@@ -68,7 +68,7 @@ public:
 
 	// Player ChargingGageBar
 	void CreateChargingGageBar(ACharacterBase* widgetOwner, float duration);
-	void SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility); // ¸Å°³º¯¼ö widgetName¿¡ ÇØ´çÇÏ´Â ¸ğµç À§Á¬À» SetVisibility
+	void SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility); // ë§¤ê°œë³€ìˆ˜ widgetNameì— í•´ë‹¹í•˜ëŠ” ëª¨ë“  ìœ„ì ¯ì„ SetVisibility
 	void RemoveWidgetContainers(const FName& widgetName);
 	void RemoveAllWidgetContainers();
 	bool IsWidgetCreated(const FName& widgetName);

@@ -65,27 +65,27 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 	const int teamType = GetTeamAttitudeTowards(*actor);
 	FString teamTypeName = "";
 
-	switch (teamType) // ������ ��ü�� ���� ���� �̺�Ʈó��.
+	switch (teamType) // 
 	{
-	case 0: // ����
+	case 0: // 아군
 		{
 			teamTypeName = "Friendly::";
 		}
 		break;
 
-	case 1: // �߸�
+	case 1: // 중립
 		{
 			teamTypeName = "Neutral::";
 		}
 		break;
 
-	case 2: // ��. ���� ��ϵ� ���� �÷��̾�ۿ� ����.
+	case 2: // 적
 		{
 			teamTypeName = "Enemy::";
 
 			const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
-			if (enemyOnBlackBoard == nullptr) // �þ߹��� ������ ���� ������ ��
+			if (enemyOnBlackBoard == nullptr) 
 			{
 				Blackboard->SetValueAsObject(AMonster::EnemyKey, perceivedCharacter);
 			}
@@ -96,9 +96,8 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 		break;
 	}
 
-	// �α����
-	FString log = "'" + m_Owner->Tags[0].ToString() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->
-		Tags[0].ToString() + "'";
+	// 로그용
+	FString log = "'" + m_Owner->Tags[0].ToString() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->Tags[0].ToString() + "'";
 
 	switch (Stimulus.Type)
 	{
@@ -145,9 +144,9 @@ void ASuperMinionAIController::initAssets()
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	if (const APawn* otherPawn = Cast<APawn>(&Other))
+	if (const APawn* otherPawn = CastChecked<APawn>(&Other))
 	{
-		if (const IGenericTeamAgentInterface* teamAgent = Cast<IGenericTeamAgentInterface>(otherPawn->GetController()))
+		if (const IGenericTeamAgentInterface* teamAgent = CastChecked<IGenericTeamAgentInterface>(otherPawn->GetController()))
 		{
 			if (teamAgent->GetGenericTeamId() == FGenericTeamId(4))
 			{

@@ -9,14 +9,13 @@ public class BattleAction : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem",
-			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras", "SignificanceManager"});
+			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras", "SignificanceManager", "AnimationBudgetAllocator"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary", "DatasmithCore" });
 
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "PropertyEditor" });
 		
-		// 에디터에서만 UnrealEd 모듈 추가
 		if (Target.Type == TargetRules.TargetType.Editor)
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");

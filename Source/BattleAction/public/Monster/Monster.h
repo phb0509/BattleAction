@@ -80,7 +80,7 @@ protected:
 	void OnCalledTimelineEvent_End_DeathDissolve(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수)
 	
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
-	
+
 
 private:
 	void setTimeline();
