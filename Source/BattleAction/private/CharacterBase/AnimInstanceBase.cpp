@@ -2,6 +2,7 @@
 
 #include "CharacterBase/AnimInstanceBase.h"
 #include "CharacterBase/CharacterBase.h"
+#include "Animation/AnimMontage.h"
 
 
 UAnimInstanceBase::UAnimInstanceBase() :
@@ -112,13 +113,13 @@ FName UAnimInstanceBase::GetCurrentMontageName() const
 	return montage == nullptr ? "" : montage->GetFName();
 }
 
-float UAnimInstanceBase::GetMontagePlayTime(const UAnimMontage* montage) 
+float UAnimInstanceBase::GetMontagePlayTime(const UAnimMontage* montage)
 {
 	check(montage != nullptr);
-	
-	const int32 frameCount = montage->GetNumberOfSampledKeys();
-	
-	return montage->GetTimeAtFrame(frameCount) / montage->RateScale;
+
+	// GetTimeAtFrame is WITH_EDITOR only, use GetPlayLength instead
+	// GetPlayLength returns base sequence length, divide by RateScale for actual play time
+	return montage->GetPlayLength() / montage->RateScale;
 }
 
 UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)

@@ -2,7 +2,7 @@
 
 
 #include "LoadingLevel.h"
-#include "AbcFile.h"
+// #include "AbcFile.h"  // TODO: Add back if using Alembic cache (requires AlembicLibrary in editor builds)
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
