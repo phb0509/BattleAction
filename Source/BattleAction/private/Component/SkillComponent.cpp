@@ -22,7 +22,11 @@ void USkillComponent::BeginPlay()
 	m_OwnerAnimInstance = CastChecked<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
 
 	loadSkills();
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
+	
+	if (m_Owner->IsLocallyControlled())
+	{
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
+	}
 }
 
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)

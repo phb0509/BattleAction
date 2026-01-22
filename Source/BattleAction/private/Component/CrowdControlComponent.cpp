@@ -42,10 +42,10 @@ void UCrowdControlComponent::BeginPlay()
 	m_Owner = CastChecked<ACharacterBase>(GetOwner());
 	m_OwnerAnimInstance = CastChecked<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
 
-	if (!m_Owner->IsA(APlayableCharacter::StaticClass()))
-	{
-		m_OwnerAIController = CastChecked<AAIController>(GetOwner()->GetInstigatorController());
-	}
+	// if (!m_Owner->IsA(APlayableCharacter::StaticClass()))
+	// {
+	// 	m_OwnerAIController = Cast<AAIController>(GetOwner()->GetInstigatorController());
+	// }
 	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &UCrowdControlComponent::TakeAttack_Knockback);
 	m_CrowdControlStartDelegates[ECrowdControlType::Down].AddUObject(this, &UCrowdControlComponent::TakeAttack_Down);
@@ -54,7 +54,7 @@ void UCrowdControlComponent::BeginPlay()
 
 void UCrowdControlComponent::ApplyCrowdControl(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_OwnerAIController != nullptr)
+	if (m_OwnerAIController != nullptr) // 몬스터인 경우,
 	{
 		m_OwnerAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsCrowdControlState"), true);
 	}
@@ -357,9 +357,19 @@ void UCrowdControlComponent::SetCrowdControlState(ECrowdControlType crowdControl
 {
 	m_CurCrowdControlState = crowdControlType;
 
-	if (m_OwnerAIController.IsValid())
+	if (m_OwnerAIController != nullptr)
 	{
 		m_OwnerAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsCrowdControlState"), crowdControlType != ECrowdControlType::None);
+	}
+}
+
+void UCrowdControlComponent::SetOwnerAIController(AController* controller)
+{
+	ACharacterBase* owner = CastChecked<ACharacterBase>(GetOwner());
+	
+	if (!owner->IsA(APlayableCharacter::StaticClass()))
+	{
+		m_OwnerAIController = Cast<AAIController>(controller);
 	}
 }
 

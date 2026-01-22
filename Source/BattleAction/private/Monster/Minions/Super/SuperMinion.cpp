@@ -46,10 +46,13 @@ void ASuperMinion::Activate()
 {
 	Super::Activate();
 
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	check(uiManager != nullptr);
+	if (!HasAuthority())
+	{
+		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+		check(uiManager != nullptr);
 	
-	uiManager->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
+		uiManager->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
+	}
 	
 	this->SetFSMState(ESuperMinionFSMStates::Patrol);
 }

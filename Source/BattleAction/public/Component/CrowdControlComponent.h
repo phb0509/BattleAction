@@ -63,6 +63,7 @@ public:
 	FORCEINLINE float GetGroggyTime() const { return m_CrowdControlSetting.groggyTime; }
 	
 	void SetCrowdControlState(ECrowdControlType crowdControlType);
+	void SetOwnerAIController(AController* controller);
 	
 protected:
 	virtual void BeginPlay() override;

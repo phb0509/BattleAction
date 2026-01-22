@@ -26,15 +26,18 @@ void UExecution_OnGround::Initialize()
 
 	check(m_ExecutionMontage != nullptr);
 	
-	APlayerController* pc = CastChecked<APlayerController>(m_Owner->GetController());
-	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Execution_OnGround"),
-	[=, this]()
+	if (m_Owner->IsLocallyControlled())
 	{
-		pc->SetViewTargetWithBlend(m_Owner.Get(), 1.0f);
+		APlayerController* playerController = CastChecked<APlayerController>(m_Owner->GetController());
+	
+		m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Execution_OnGround"),
+		[=, this]()
+		{
+			playerController->SetViewTargetWithBlend(m_Owner.Get(), 1.0f);
 		
-		m_ExecutionCamera->Destroy();
-	});
+			m_ExecutionCamera->Destroy();
+		});
+	}
 }
 
 void UExecution_OnGround::Execute()  

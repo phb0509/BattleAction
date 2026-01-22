@@ -12,6 +12,8 @@
 #include <type_traits>
 #include "Monster.generated.h"
 
+class AAIControllerBase;
+
 namespace MyProjectConcepts {
 	template<typename T>
 	concept ValidFSMStateType = 
@@ -30,6 +32,7 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 
 	virtual void OnGroggy();
@@ -51,6 +54,8 @@ public:
 
 	void Pause();
 	void Unpause();
+	
+	AAIControllerBase* GetAIControllerBase();
 	
 	virtual bool IsActive() override;
 	

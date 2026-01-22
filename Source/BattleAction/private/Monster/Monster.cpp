@@ -29,9 +29,7 @@ AMonster::AMonster() :
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
-
-	m_AIControllerBase = CastChecked<AAIControllerBase>(GetController());
-
+	
 	check(IsValid(m_CrowdControlComponent));
 	m_CrowdControlComponent->OnEndedGroggy.AddUObject(this, &AMonster::EndedGroggy);
 	
@@ -46,8 +44,18 @@ void AMonster::Tick(float DeltaSeconds)
 	m_DeathDissolveTimeline.TickTimeline(DeltaSeconds);
 }
 
+void AMonster::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	m_AIControllerBase = CastChecked<AAIControllerBase>(GetController());
+	m_CrowdControlComponent->SetOwnerAIController(NewController);
+	
+	UE_LOG(LogTemp, Warning, TEXT("AMonster :: PossessedBy"));
+}
+
 void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation,
-	AActor* instigator, const FVector& causerLocation)
+                        AActor* instigator, const FVector& causerLocation)
 {
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
 	
@@ -124,24 +132,15 @@ void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
 
 void AMonster::Initialize()
 {
-	// HPBar 위젯 생성 및 부착.
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	check(uiManager != nullptr);
-
-	uiManager->CreateMonsterHPBar(this);
-
+	// 클라이언트에서 체력바UI 생성.
+	if (!HasAuthority())
+	{
+		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+		uiManager->CreateMonsterHPBar(this);
+	}
+	
 	// Animation Budget 최적화: 화면에 렌더링될 때만 애니메이션 업데이트
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
-	
-	// GetMesh()->bAutoCalculateSignificance = true;
-	// GetMesh()->bAutoRegisterWithBudgetAllocator = true;
-	
-	
-
-	// // Animation Budget - 거리에 따른 최적화 강도 설정
-	// GetMesh()->bEnableUpdateRateOptimizations = true;  // 업데이트 레이트 최적화 활성화
-	// GetMesh()->AnimUpdateRateParams->BaseNonRenderedUpdateRate = 4;  // 화면 밖: 4프레임마다 업데이트
-	// GetMesh()->AnimUpdateRateParams->MaxEvalRateForInterpolation = 4; // 보간 시 최대 평가 레이트
 }
 
 
@@ -154,9 +153,12 @@ void AMonster::Activate()
 	m_StatComponent->InitHP();
 	m_StatComponent->InitStamina();
 	
-	m_AIControllerBase->OnPossess(this);
-	m_AIControllerBase->StartBehaviorTree();
-
+	if (m_AIControllerBase.IsValid())
+	{
+		m_AIControllerBase->OnPossess(this);
+		m_AIControllerBase->StartBehaviorTree();
+	}
+	
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 0.0f);
 
 	// 충돌체들 활성화
@@ -170,25 +172,30 @@ void AMonster::Activate()
 	this->SetActorHiddenInGame(false);
 
 	// 모든 컴포넌트 Tick 활성화
-	SetAllComponentsTickEnabled(true);
+	this->SetAllComponentsTickEnabled(true);
 	
 	OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
 	
-	// UI
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	check(uiManager != nullptr);
+	// UI관련 함수 바인딩 (클라이언트에서만 수행)
+	if (!HasAuthority())
+	{
+		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+		check(uiManager != nullptr);
 	
-	OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
-	
+		OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
+	}
 }
 
 void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
 	this->SetIsDead(true);
 
-	m_AIControllerBase->StopBehaviorTree();
-	m_AIControllerBase->OnUnPossess();
-
+	if (m_AIControllerBase.IsValid())
+	{
+		m_AIControllerBase->StopBehaviorTree();
+		m_AIControllerBase->OnUnPossess();
+	}
+	
 	OnTakeDamage.Clear();
 
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
@@ -206,7 +213,7 @@ void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회
 	}
 
 	// 모든 컴포넌트 Tick 중지 (Animation Budget 소모 방지)
-	SetAllComponentsTickEnabled(false);
+	this->SetAllComponentsTickEnabled(false);
 	
 	this->SetActorTickEnabled(false);
 	this->SetActorHiddenInGame(true);
@@ -253,7 +260,7 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
 	Super::PlayOnHitEffect(hitInfo);
 
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 諛붾줈 遺됯쾶 ?덈떎媛,
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 
 	
 	GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
 	GetWorldTimerManager().SetTimer(
@@ -269,13 +276,20 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 
 void AMonster::SetBehaviorTreeFSMState(uint8 enumIndex) const
 {
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, enumIndex);
+	if (m_AIControllerBase.IsValid())
+	{
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, enumIndex);
+	}
 }
 
 void AMonster::SetIsDead(bool bIsDead)
 {
 	m_bIsDead = bIsDead;
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
+	
+	if (m_AIControllerBase.IsValid())
+	{
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
+	}
 }
 
 void AMonster::Pause()

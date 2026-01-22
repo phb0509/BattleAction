@@ -38,6 +38,7 @@ class BATTLEACTION_API UUIManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 
 	void CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner);
 	void CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner);

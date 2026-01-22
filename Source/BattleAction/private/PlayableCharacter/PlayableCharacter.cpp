@@ -39,13 +39,16 @@ void APlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	check(uiManager != nullptr);
+	if (IsLocallyControlled())
+	{
+		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+		check(uiManager != nullptr);
 	
-	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
+		uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
+		
+		OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
+	}
 	
-	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
-
 	initInputConfigs();
 }
 
@@ -69,6 +72,11 @@ void APlayableCharacter::RotateActorToControllerYaw() // 액터의 z축회전값
 
 void APlayableCharacter::AddInputMappingContext(const FName& inputMappingContextName)
 {
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+	
 	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	UInputMappingContext* inputMappingContext = m_InputMappingConfigs[inputMappingContextName].inputMappingContext;
@@ -85,6 +93,11 @@ void APlayableCharacter::AddInputMappingContext(const FName& inputMappingContext
 
 void APlayableCharacter::RemoveInputMappingContext(const FName& inputMappingContextName)
 {
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+	
 	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	UInputMappingContext* inputMappingContext = m_InputMappingConfigs[inputMappingContextName].inputMappingContext;

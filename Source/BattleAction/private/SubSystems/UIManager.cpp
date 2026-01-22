@@ -31,6 +31,36 @@ void UUIManager::Deinitialize()
 	m_WhiteBlinkHPBars.Empty();
 }
 
+bool UUIManager::ShouldCreateSubsystem(UObject* Outer) const
+{
+	// 데디케이티드 서버(패키징 + PIE)에서는 UIManager 생성 안 함
+	if (IsRunningDedicatedServer())
+	{
+		return false;
+	}
+
+	// PIE 서버 체크: 에디터에서 실행 중이고 서버 역할인 경우
+	if (GIsEditor)
+	{
+		if (UGameInstance* GameInstance = Cast<UGameInstance>(Outer))
+		{
+			if (UWorld* World = GameInstance->GetWorld())
+			{
+				// NM_DedicatedServer 또는 NM_ListenServer이지만 net driver가 서버 전용인 경우
+				if (World->GetNetMode() == NM_DedicatedServer)
+				{
+					return false;
+				}
+			}
+		}
+	}
+	
+	// if (FParse::Param(FCommandLine::Get(), TEXT("server")))
+	// 	return false;
+
+	return true;
+}
+
 void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
