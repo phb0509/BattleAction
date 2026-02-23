@@ -22,14 +22,14 @@ void UCharging_OnGround::Initialize()
 	check(m_ChargingMontage != nullptr);
 }
 
-void UCharging_OnGround::Execute()
+void UCharging_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
 	
-	m_OwnerAnimInstance->Montage_Play(m_ChargingMontage, 1.0f);
+	m_Owner->Multicast_PlayMontage(m_ChargingMontage, 1.0f);
 	
 	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
 	
@@ -39,8 +39,8 @@ void UCharging_OnGround::Execute()
 		{
 			m_Owner->RemoveInputMappingContext(TEXT("Default_OnGround"));
 			m_Owner->AddInputMappingContext(TEXT("Charging_OnGround"));
-			ownerSkillComponent->SetCanChargingSkill(true);
 			
+			ownerSkillComponent->SetCanChargingSkill(true);
 		},
 		m_ChargingDuration,
 		false);

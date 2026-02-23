@@ -16,7 +16,7 @@ class BATTLEACTION_API UActorPoolManager : public UGameInstanceSubsystem
 public:
 	AActorPool* GetActorPool();
 
-
+	
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<AActorPool> m_ActorPool;

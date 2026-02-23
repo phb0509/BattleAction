@@ -17,6 +17,25 @@ public:
 };
 
 USTRUCT(Atomic)
+struct FInputInfos
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY()
+	int32 inputVertical = 0;
+
+	UPROPERTY()
+	int32 inputHorizontal = 0;
+
+	UPROPERTY()
+	bool bIsStrikeAttackActive = false;
+
+	UPROPERTY()
+	float controlYaw = 0.0f;
+};
+
+USTRUCT(Atomic)
 struct FAttackInformationData : public FTableRowBase
 {
 	GENERATED_BODY()

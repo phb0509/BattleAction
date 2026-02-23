@@ -54,9 +54,9 @@ void UFateSealed::Initialize()
 	
 }
 
-void UFateSealed::Execute()
+void UFateSealed::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::FateSealed);
 	
@@ -122,12 +122,12 @@ void UFateSealed::moveToNextTarget()
 		const FVector targetLocation = m_CurTarget->GetActorLocation();
 		const FVector finalLocation = targetLocation + (m_Owner->GetActorLocation() - targetLocation).GetSafeNormal() * 30.0f;
 
-		m_Owner->SetActorLocation(finalLocation);
+		m_Owner->SetActorLocationReplicated(finalLocation);
 		m_Owner->RotateToTarget(m_CurTarget.Get());
 
 		const FName section = *FString::FromInt(m_CurTargetIndex % 5);
-		m_OwnerAnimInstance->Montage_Play(m_FateSealedMontage,1.0f);
-		m_OwnerAnimInstance->Montage_JumpToSection(section, m_FateSealedMontage);
+		m_Owner->Multicast_PlayMontage(m_FateSealedMontage, 1.0f);
+		m_Owner->Multicast_JumpToMontageSection(m_FateSealedMontage, section);
 	}
 }
 
@@ -193,8 +193,8 @@ void UFateSealed::finishSkill()
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	ownerSkillComponent->SetCanChargingSkill(false);
 	
-	m_Owner->SetActorLocation(m_SkillStartLocation);
-	m_OwnerAnimInstance->Montage_Play(m_FateSealedFinishMontage,1.0f);
+	m_Owner->SetActorLocationReplicated(m_SkillStartLocation);
+	m_Owner->Multicast_PlayMontage(m_FateSealedFinishMontage, 1.0f);
 }
 
 void UFateSealed::onFateSealedFinishEnded()

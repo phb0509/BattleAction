@@ -13,6 +13,7 @@ UEarthStrike_InAir::UEarthStrike_InAir() :
 	m_FallingToGroundMontage(nullptr),
 	m_EarthStrikeMontage(nullptr),
 	m_AttackRangeRadius(500.0f),
+	m_DownGravityScale(6.0f),
 	m_Particle(nullptr),
 	m_CameraShake(nullptr),
 	m_Sound(nullptr)
@@ -32,40 +33,53 @@ void UEarthStrike_InAir::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("EarthStrike_OnGround"),
 [this]()
 	{
-		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
+		m_OwnerSkillComponent->InitGravityScaleAfterAttack();
 	});
 }
 
-void UEarthStrike_InAir::Execute()
+void UEarthStrike_InAir::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
-	
-	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
-	m_Owner->GetWorldTimerManager().SetTimer
-	(
-		m_Timer,
-		this,
-		&UEarthStrike_InAir::ExecEvent_WhenOnGround,
-		m_Owner->GetWorld()->DeltaTimeSeconds,
-		true, -1
-	);
-	
+	Super::Execute(inputInfos);
+
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
-	
-	m_OwnerAnimInstance->Montage_Play(m_FallingToGroundMontage, 1.0f);
+
+	m_Owner->SetGravityScaleReplicated(m_DownGravityScale);
+	m_Owner->LandedDelegate.AddDynamic(this, &UEarthStrike_InAir::OnLanded);
+
+	m_Owner->Multicast_PlayMontage(m_FallingToGroundMontage, 1.0f);
+
+	// 기존 타이머 방식 (주석 처리)
+	// m_Owner->GetWorldTimerManager().SetTimer
+	// (
+	// 	m_Timer,
+	// 	this,
+	// 	&UEarthStrike_InAir::ExecEvent_WhenOnGround,
+	// 	m_Owner->GetWorld()->DeltaTimeSeconds,
+	// 	true, -1
+	// );
 }
 
-void UEarthStrike_InAir::ExecEvent_WhenOnGround()
+void UEarthStrike_InAir::OnLanded(const FHitResult& Hit)
 {
-	if (m_Owner->IsOnGround())
-	{
-		m_Owner->GetWorldTimerManager().ClearTimer(m_Timer);
-		m_OwnerAnimInstance->Montage_Play(m_EarthStrikeMontage, 1.0f);
+	m_Owner->LandedDelegate.RemoveDynamic(this, &UEarthStrike_InAir::OnLanded);
+	m_Owner->Multicast_PlayMontage(m_EarthStrikeMontage, 1.0f);
 
-		attack();
-		playEffect();
-	}
+	attack();
+	playEffect();
 }
+
+// 기존 타이머 콜백 (주석 처리)
+// void UEarthStrike_InAir::ExecEvent_WhenOnGround()
+// {
+// 	if (m_Owner->IsOnGround())
+// 	{
+// 		m_Owner->GetWorldTimerManager().ClearTimer(m_Timer);
+// 		m_Owner->Server_PlayMontage(m_EarthStrikeMontage, 1.0f);
+//
+// 		attack();
+// 		playEffect();
+// 	}
+// }
 
 void UEarthStrike_InAir::attack()
 {

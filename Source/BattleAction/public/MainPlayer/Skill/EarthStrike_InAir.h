@@ -18,9 +18,14 @@ public:
 	UEarthStrike_InAir();
 
 	virtual void Initialize() override;
-	virtual void Execute() override;
+	virtual void Execute(const FInputInfos& inputInfos) override;
 
-	void ExecEvent_WhenOnGround();
+	UFUNCTION()
+	void OnLanded(const FHitResult& Hit);
+
+	// 기존 타이머 콜백 (주석 처리)
+	// void ExecEvent_WhenOnGround();
+
 	void attack();
 	void playEffect();
 
@@ -34,10 +39,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	TObjectPtr<UAnimMontage> m_EarthStrikeMontage;
 
-	FTimerHandle m_Timer;
+	// 기존 타이머 (주석 처리)
+	// FTimerHandle m_Timer;
 
-	UPROPERTY(EditAnywhere, Category = "AttackRange")
+	UPROPERTY(EditAnywhere, Category = "Skill | AttackRangeRadius")
 	float m_AttackRangeRadius;
+	
+	UPROPERTY(EditAnywhere, Category = "Skill | m_DownGravityScale (DownVelocity)")
+	float m_DownGravityScale;
 	
 	UPROPERTY(EditAnywhere, Category = "Particle")
 	TObjectPtr<UParticleSystem> m_Particle;

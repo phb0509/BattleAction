@@ -28,14 +28,14 @@ void UGuard_OnGround::Initialize()
 	check(m_ParryingHitParticle != nullptr);
 }
 
-void UGuard_OnGround::Execute()
+void UGuard_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 
 	AMainPlayer* owner = CastChecked<AMainPlayer>(m_Owner);
 	
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Parry_OnGround);
-	m_OwnerAnimInstance->Montage_Play(m_GuardMontage, 1.0f);
+	m_Owner->Multicast_PlayMontage(m_GuardMontage, 1.0f);
 	
 	owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	//owner->SetIsParrying(true);

@@ -10,6 +10,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Component/CrowdControlComponent.h"
+#include "MotionWarpingComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 
 int32 attackCount = 0; // 로그용
@@ -44,6 +47,13 @@ void ACharacterBase::BeginPlay()
 	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death);
 
 	OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
+}
+
+void ACharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACharacterBase, m_bIsSuperArmor);
 }
 
 void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
@@ -83,13 +93,35 @@ void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAtt
 	// 로그용
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(_finaldamage) + " damage from " +
-		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
+		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + "curHP :: " + FString::FromInt((m_StatComponent->GetCurHP())) + " :: " +
+			FString::FromInt(attackCount);
+	
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
 void ACharacterBase::OnDamageStamina(const float staminaDamage) const
 {
 	m_StatComponent->OnDamageStamina(staminaDamage);
+}
+
+void ACharacterBase::Server_SetActorLocation_Implementation(const FVector& location)
+{
+	this->SetActorLocation(location);
+}
+
+void ACharacterBase::Server_SetActorRotation_Implementation(const FRotator& rotation)
+{
+	this->SetActorRotation(rotation);
+}
+
+void ACharacterBase::Server_SetMovementMode_Implementation(const EMovementMode movementMode)
+{
+	GetCharacterMovement()->SetMovementMode(movementMode);
+}
+
+void ACharacterBase::Server_SetGravityScale_Implementation(const float gravityScale)
+{
+	GetCharacterMovement()->GravityScale = gravityScale;
 }
 
 void ACharacterBase::OnHPIsZero()
@@ -143,17 +175,30 @@ void ACharacterBase::PlayOnHitEffect(const FHitInformation& hitInformation)
 
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
 {
-	const FVector targetLocation = target->GetActorLocation();
-    const FVector myLocation = this->GetActorLocation();
+	// const FVector targetLocation = target->GetActorLocation();
+ //    const FVector myLocation = this->GetActorLocation();
+	//
+ //    const FVector directionToTarget = (targetLocation - myLocation).GetSafeNormal();
+ //    const FRotator rotationToTarget = directionToTarget.Rotation();
+	//
+	// FRotator curRotation = this->GetActorRotation();
+	// curRotation.Yaw = rotationToTarget.Yaw;
+	// curRotation += rotatorOffset;
+	//
+	// this->SetActorRotation(curRotation);
 	
-    const FVector directionToTarget = (targetLocation - myLocation).GetSafeNormal();
-    const FRotator rotationToTarget = directionToTarget.Rotation();
-	
-	FRotator curRotation = this->GetActorRotation();
-	curRotation.Yaw = rotationToTarget.Yaw;
-	curRotation += rotatorOffset;
-	
-    SetActorRotation(curRotation);
+	if (IsValid(target)) return;
+    
+	FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
+		GetActorLocation(), 
+		target->GetActorLocation()
+	);
+    
+	// Pitch/Roll 제거 (수평 회전만)
+	LookAtRot.Pitch = 0.0f;
+	LookAtRot.Roll = 0.0f;
+    
+	SetActorRotation(LookAtRot + rotatorOffset);
 }
 
 bool ACharacterBase::IsWithInRange(const AActor* target, const float range) const
@@ -256,3 +301,68 @@ void ACharacterBase::SetAllComponentsTickEnabled(bool bEnabled)
 		}
 	}
 }
+
+void ACharacterBase::SetActorLocationReplicated(const FVector& location)
+{
+	this->SetActorLocation(location);
+	this->Server_SetActorLocation(location);
+}
+
+void ACharacterBase::SetActorRotationReplicated(const FRotator& rotation)
+{
+	this->SetActorRotation(rotation);
+	this->Server_SetActorRotation(rotation);
+}
+
+void ACharacterBase::SetMovementModeReplicated(const EMovementMode movementMode)
+{
+	this->GetCharacterMovement()->SetMovementMode(movementMode);
+	this->Server_SetMovementMode(movementMode);
+}
+
+void ACharacterBase::SetGravityScaleReplicated(const float gravityScale)
+{
+	GetCharacterMovement()->GravityScale = gravityScale;
+	this->Server_SetGravityScale(gravityScale);
+}
+
+void ACharacterBase::Multicast_PlayMontage_Implementation(UAnimMontage* montage, float playRate)
+{
+	if (IsValid(montage) && m_AnimInstanceBase.IsValid())
+	{
+		m_AnimInstanceBase->Montage_Play(montage, playRate);
+	}
+}
+
+void ACharacterBase::Multicast_JumpToMontageSection_Implementation(UAnimMontage* montage, const FName& sectionName)
+{
+	if (IsValid(montage) && m_AnimInstanceBase.IsValid())
+	{
+		m_AnimInstanceBase->Montage_JumpToSection(sectionName, montage);
+	}
+}
+
+void ACharacterBase::Multicast_StopAllMontages_Implementation(const float blendOut)
+{
+	if (m_AnimInstanceBase.IsValid())
+	{
+		m_AnimInstanceBase->StopAllMontages(blendOut);
+	}
+}
+
+void ACharacterBase::Multicast_SetMotionWarpingTarget_Implementation(const FName& warpTargetName, const FVector& targetLocation)
+{
+	if (IsValid(m_MotionWarpingComponent))
+	{
+		m_MotionWarpingComponent->AddOrUpdateWarpTargetFromLocation(warpTargetName, targetLocation);
+	}
+}
+
+void ACharacterBase::Multicast_RotateToTarget_Implementation(AActor* target, const FRotator& rotatorOffset)
+{
+	RotateToTarget(target, rotatorOffset);
+}
+
+
+
+

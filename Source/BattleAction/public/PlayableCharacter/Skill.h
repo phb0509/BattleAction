@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Utility/CustomStructs.h"
 #include "Skill.generated.h"
 
 class APlayableCharacter;
@@ -22,7 +23,9 @@ public:
 	USkill();
 
 	virtual void Initialize() {};
-	virtual void Execute();
+	
+	virtual void Execute(const FInputInfos& inputInfos);
+	
 	virtual bool CanExecuteSkill() const;
 	
 	FORCEINLINE FName& GetName() { return m_Name; }
@@ -35,8 +38,6 @@ public:
 	
 	FORCEINLINE void SetOwnerInfo(APlayableCharacter* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
-
-	
 
 public:
 	FOnExecute OnExecute;

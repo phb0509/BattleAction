@@ -18,10 +18,10 @@ USkill::USkill() :
 {
 }
 
-void USkill::Execute()
+void USkill::Execute(const FInputInfos& inputInfos) // �������� ȣ��.
 {
 	m_bIsCooldownComplete = false;
-	
+
 	m_Owner->GetWorldTimerManager().SetTimer(
 		m_TimerHandle,
 		[this]()
@@ -33,7 +33,7 @@ void USkill::Execute()
 
 	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
 	m_Owner->GetStatComponent()->OnDamageStamina(m_StaminaCost * 0.5f);
-	
+
 	if (m_Owner->IsLockOnMode())
 	{
 		AActor* lockOnTarget = m_Owner->GetCurLockOnTarget();
@@ -41,17 +41,13 @@ void USkill::Execute()
 		if (lockOnTarget != nullptr)
 		{
 			m_Owner->RotateToTarget(lockOnTarget);
+			//m_Owner->Multicast_RotateToTarget(lockOnTarget);
 		}
 	}
-	else
-	{
-		m_Owner->RotateActorToKeyInputDirection();
-	}
-
-	if (m_bIsAddedSkillSlots)
-	{
-		OnExecute.Broadcast(); // 스킬아이콘 쿨다운 업데이트.
-	}
+	// else
+	// {
+	// 	m_Owner->RotateActorToKeyInputDirection(inputInfos.controlYaw, inputInfos.inputVertical, inputInfos.inputHorizontal);
+	// }
 }
 
 bool USkill::CanExecuteSkill() const

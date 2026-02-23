@@ -27,18 +27,18 @@ void UDashAttack_OnGround::Initialize()
     	});
 }
 
-void UDashAttack_OnGround::Execute()
+void UDashAttack_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
-	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+	m_Owner->Multicast_SetMotionWarpingTarget(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 	
-	m_OwnerAnimInstance->Montage_Play(m_DashAttackMontage, 1.0f);
+	m_Owner->Multicast_PlayMontage(m_DashAttackMontage, 1.0f);
 }
 
 bool UDashAttack_OnGround::CanExecuteSkill() const

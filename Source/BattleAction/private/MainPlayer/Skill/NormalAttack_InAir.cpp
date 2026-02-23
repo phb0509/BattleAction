@@ -27,7 +27,7 @@ void UNormalAttack_InAir::Initialize()
 [this]()
 	{
 		m_Owner->GetCharacterMovement()->Velocity.Z = 0.0f;
-		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
+		m_OwnerSkillComponent->ApplyInAirSkillGravity();
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
@@ -43,9 +43,9 @@ void UNormalAttack_InAir::Initialize()
 	});
 }
 
-void UNormalAttack_InAir::Execute()
+void UNormalAttack_InAir::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
@@ -58,8 +58,7 @@ void UNormalAttack_InAir::Execute()
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
 			
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+			m_Owner->Multicast_SetMotionWarpingTarget(TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			
 			ownerSkillComponent->SetHasStartedComboKeyInputCheck(false);
 			
@@ -73,17 +72,16 @@ void UNormalAttack_InAir::Execute()
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+		m_Owner->Multicast_SetMotionWarpingTarget(TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 
-		m_OwnerAnimInstance->Montage_Play(m_NormalAttackMontage, 1.0f);
+		m_Owner->Multicast_PlayMontage(m_NormalAttackMontage, 1.0f);
 	}
 }
 
 void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()
 {
 	m_CurComboAttackSection += 1;
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(m_NormalAttackMontage, m_CurComboAttackSection);
+	m_Owner->Multicast_JumpToMontageSection(m_NormalAttackMontage, FName(*FString::FromInt(m_CurComboAttackSection)));
 }
 
 bool UNormalAttack_InAir::CanExecuteSkill() const

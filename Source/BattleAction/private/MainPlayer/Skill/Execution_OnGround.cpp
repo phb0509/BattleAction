@@ -40,9 +40,9 @@ void UExecution_OnGround::Initialize()
 	}
 }
 
-void UExecution_OnGround::Execute()  
+void UExecution_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	ACharacterBase* target = findTarget();
 
@@ -51,11 +51,10 @@ void UExecution_OnGround::Execute()
 		UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_NonTargeting_OnGround);
 
-		m_Owner->RotateToTarget(target);
-		
 		playExecutionCamera();
 		
-		m_OwnerAnimInstance->Montage_Play(m_ExecutionMontage,1.0f);
+		m_Owner->RotateToTarget(target);
+		m_Owner->Multicast_PlayMontage(m_ExecutionMontage, 1.0f);
 	}
 }
 

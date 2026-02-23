@@ -41,7 +41,8 @@ public:
 	
 	float GetMontagePlayTime(const UAnimMontage* montage);
 	UAnimMontage* GetMontage(const FName& montageName);
-
+	
+	
 	FORCEINLINE bool IsLastMontagePlayInterrupted() const { return m_bIsLastMontagePlayInterrupted; }
 	
 	// Bind Func

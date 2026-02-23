@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Utility/EnumTypes.h"
 #include "CrowdControlComponent.generated.h"
 
@@ -104,6 +105,7 @@ private:
 	FTimerHandle m_CrowdControlTimerHandle;
 	FTimerHandle m_GroggyTimerHandle;
 
+	UPROPERTY(Replicated)
 	ECrowdControlType m_CurCrowdControlState;
 
 	float m_LastCrowdControlTime;

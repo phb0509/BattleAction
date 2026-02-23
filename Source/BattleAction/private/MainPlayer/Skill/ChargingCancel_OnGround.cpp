@@ -26,9 +26,9 @@ void UChargingCancel_OnGround::Initialize()
 		});
 }
 
-void UChargingCancel_OnGround::Execute()
+void UChargingCancel_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
@@ -40,7 +40,7 @@ void UChargingCancel_OnGround::Execute()
 	m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
 	m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
 	
-	m_OwnerAnimInstance->Montage_Play(m_StopChargingMontage,1.0f);
+	m_Owner->Multicast_PlayMontage(m_StopChargingMontage, 1.0f);
 
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	check(uiManager != nullptr);

@@ -10,6 +10,13 @@ void UDataManager::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 }
 
+void UDataManager::Deinitialize()
+{
+	m_AttackInformations.Empty();
+	
+	Super::Deinitialize();
+}
+
 void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FString& assetPath)
 {
 	if (m_AttackInformations.Contains(classType))

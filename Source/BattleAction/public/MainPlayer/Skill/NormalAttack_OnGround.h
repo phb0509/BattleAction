@@ -18,7 +18,7 @@ public:
 	UNormalAttack_OnGround();
 
 	virtual void Initialize() override;
-	virtual void Execute() override;
+	virtual void Execute(const FInputInfos& inputInfos) override;
 	
 	int32 GetCurComboAttackSection() const { return m_CurComboAttackSection; }
 
@@ -26,7 +26,7 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 	
 private:
-	void linqNextNormalAttackOnGroundCombo();
+	void linqNextNormalAttackOnGroundCombo(const bool bIsStrikeAttackActive);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")

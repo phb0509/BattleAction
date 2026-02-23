@@ -30,21 +30,20 @@ void UNormalAttack_OnGround::Initialize()
 		});
 }
 
-void UNormalAttack_OnGround::Execute()
+void UNormalAttack_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None)) // 
 	{
+		// 첫 공격 수행.
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-		
-		m_OwnerAnimInstance->Montage_Play(m_NormalAttackMontage,1.0f);
+		m_Owner->Multicast_SetMotionWarpingTarget(TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+		m_Owner->Multicast_PlayMontage(m_NormalAttackMontage, 1.0f);
 		
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 	}
@@ -56,23 +55,22 @@ void UNormalAttack_OnGround::Execute()
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
 			
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+			m_Owner->Multicast_SetMotionWarpingTarget(TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			
 			ownerSkillComponent->SetHasStartedComboKeyInputCheck(false);
 			
-			linqNextNormalAttackOnGroundCombo(); // 섹션점프
+			linqNextNormalAttackOnGroundCombo(inputInfos.bIsStrikeAttackActive); // 섹션점프
 		}
 	}
 }
 
-void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
+void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo(const bool bIsStrikeAttackActive)
 {
 	UMainPlayerSkillComponent* ownerSkillComponent = CastChecked<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
 	{
-		if (ownerSkillComponent->IsStrikeAttackActive()) // 강공격키 눌려있으면,
+		if (bIsStrikeAttackActive) // 강공격키 눌려있으면,
 		{
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
 			m_CurComboAttackSection += 1;
@@ -85,7 +83,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 	}
 	else // 강공격중인경우,
 	{
-		if (ownerSkillComponent->IsStrikeAttackActive())
+		if (bIsStrikeAttackActive)
 		{
 			m_CurComboAttackSection = FMath::Clamp(m_CurComboAttackSection + 2, 1, m_MaxNormalAttackSection);
 	
@@ -105,7 +103,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 		}
 	}
 	
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(m_NormalAttackMontage, m_CurComboAttackSection);
+	m_Owner->Multicast_JumpToMontageSection(m_NormalAttackMontage, FName(*FString::FromInt(m_CurComboAttackSection)));
 }
 
 bool UNormalAttack_OnGround::CanExecuteSkill() const

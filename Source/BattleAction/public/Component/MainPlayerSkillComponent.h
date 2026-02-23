@@ -53,7 +53,10 @@ public:
 	void SetIdle(UAnimMontage* Montage, bool bInterrupted);
 
 	FORCEINLINE FTimerHandle& GetChargingTimer() { return m_ChargingTimer; }
-	
+
+protected:
+	virtual FInputInfos BuildInputInfos() const override;
+
 private:
 	void bindFuncOnMontageEvent();
 	void printLog();

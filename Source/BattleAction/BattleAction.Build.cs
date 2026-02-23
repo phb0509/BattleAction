@@ -11,14 +11,14 @@ public class BattleAction : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem",
 			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras", "SignificanceManager", "AnimationBudgetAllocator"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary", "DatasmithCore" });
+		// Editor-only modules moved to conditional block below
 
-		// Uncomment if you are using Slate UI
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "PropertyEditor" });
+		// Slate UI (PropertyEditor excluded - editor only)
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		
 		if (Target.Type == TargetRules.TargetType.Editor)
 		{
-			PrivateDependencyModuleNames.Add("UnrealEd");
+			PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary", "DatasmithCore", "PropertyEditor", "UnrealEd" });
 		}
 		
 		// Uncomment if you are using online features

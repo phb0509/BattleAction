@@ -49,7 +49,7 @@ public:
 		SetBehaviorTreeFSMState(enumIndex);
 	}
 	
-	void SetBehaviorTreeFSMState(uint8 enumIndex) const;
+	void SetBehaviorTreeFSMState(uint8 enumIndex);
 	void SetIsDead(bool bIsDead);
 
 	void Pause();
@@ -64,7 +64,6 @@ protected:
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void Deactivate() override;
-	
 	
 	virtual void OnStaminaIsZero() override;
 	

@@ -35,6 +35,7 @@ class BATTLEACTION_API ACharacterBase : public ACharacter, public IDamageable
 public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	// IDamageable
 	virtual void OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
@@ -91,6 +92,43 @@ public:
 	void RecoveryStamina() const;
 
 	void SetAllComponentsTickEnabled(bool bEnabled);
+	void SetActorLocationReplicated(const FVector& location);
+	void SetActorRotationReplicated(const FRotator& rotation);
+	void SetMovementModeReplicated(const EMovementMode movementMode);
+	void SetGravityScaleReplicated(const float gravityScale);
+	
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StopAllMontages(const float blendOut);
+	
+	// 모션 워핑 타겟 설정 - 클라이언트에서 호출
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SetMotionWarpingTarget(const FName& warpTargetName, const FVector& targetLocation);
+	
+	// 회전 동기화 - 클라이언트에서 호출
+	UFUNCTION(Server, Reliable)
+	void Multicast_RotateToTarget(AActor* target, const FRotator& rotatorOffset = FRotator::ZeroRotator);
+
+	// 서버에서 호출 - 모든 클라이언트에 전파
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayMontage(UAnimMontage* montage, float playRate = 1.0f);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_JumpToMontageSection(UAnimMontage* montage, const FName& sectionName);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetActorLocation(const FVector& location);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetActorRotation(const FRotator& rotation);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetMovementMode(const EMovementMode movementMode);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetGravityScale(const float gravityScale);
+	
+
 
 protected:
 	virtual void OnHPIsZero();
@@ -123,7 +161,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float m_RunSpeed;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Replicated, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))

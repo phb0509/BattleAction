@@ -15,6 +15,7 @@ class BATTLEACTION_API UDataManager : public UGameInstanceSubsystem
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 	
 	void LoadAttackInformation(TSubclassOf<AActor> classType, const FString& assetPath);
 	void DeleteAttackInformation(TSubclassOf<AActor> classType);

@@ -100,6 +100,13 @@ void UMainPlayerSkillComponent::FateSealed()
 }
 
 
+FInputInfos UMainPlayerSkillComponent::BuildInputInfos() const
+{
+	FInputInfos inputInfos = Super::BuildInputInfos();
+	inputInfos.bIsStrikeAttackActive = m_bIsStrikeAttackActive;
+	return inputInfos;
+}
+
 void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 {
 	FTimerHandle timer;

@@ -16,9 +16,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 const int32 APlayableCharacter::DirectionIndex[3][3] =
-	{{5,4,3},
-	{6,0,2},
-	{7,0,1}
+	{{5,4,3}, // 후방왼쪽대각, 후방, 후방오른쪽대각
+	{6,0,2}, // 왼쪽, 제자리(키입력X), 오른쪽
+	{7,0,1} // 전방왼쪽대각, 전방, 전방오른쪽대각
 	};
 
 APlayableCharacter::APlayableCharacter() :
@@ -53,13 +53,32 @@ void APlayableCharacter::BeginPlay()
 }
 
 
-void APlayableCharacter::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
+void APlayableCharacter::RotateActorToKeyInputDirection(float controlYaw, const int32 inputVertical, const int32 inputHorizontal) // WSAD 키입력방향으로 액터회전.
 {
 	FRotator actorRotation = GetActorRotation();
-	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-	actorRotation.Yaw = GetControlRotation().Yaw + degree;
+	const double degree = Utility::ConvertToDegree(inputVertical, inputHorizontal);
+	actorRotation.Yaw = controlYaw + degree;
+
+	this->SetActorRotation(actorRotation);
+}
+
+void APlayableCharacter::Server_RotateActorToKeyInputDirection_Implementation(float controlYaw, int32 inputVertical, int32 inputHorizontal)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Server:: Yaw=%f, V=%d, H=%d"),                                                       
+	  controlYaw,                                                                                    
+	  inputVertical,                                                                                       
+	 inputHorizontal);    
 	
-	SetActorRotation(actorRotation);
+	UE_LOG(LogTemp, Warning, TEXT("Server:: Forward = X : %f, Y : %f, Z : %f"),                                                       
+	GetActorForwardVector().X,                                                                                    
+	 GetActorForwardVector().Y,                                                                                       
+	 GetActorForwardVector().Z);    
+	
+	FRotator actorRotation = GetActorRotation();
+	const double degree = Utility::ConvertToDegree(inputVertical, inputHorizontal);
+	actorRotation.Yaw = controlYaw + degree;
+
+	this->SetActorRotation(actorRotation);
 }
 
 void APlayableCharacter::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
@@ -67,7 +86,7 @@ void APlayableCharacter::RotateActorToControllerYaw() // 액터의 z축회전값
 	FRotator actorRotation = GetActorRotation();
 	actorRotation.Yaw =  GetControlRotation().Yaw;
 	
-	SetActorRotation(actorRotation);
+	this->SetActorRotation(actorRotation);
 }
 
 void APlayableCharacter::AddInputMappingContext(const FName& inputMappingContextName)
@@ -158,8 +177,8 @@ int32 APlayableCharacter::GetLocalDirectionIndex(const FVector& worldDirection) 
 	const float forwardDot = FVector::DotProduct(GetActorForwardVector(), worldDirection);
 	const float rightDot = FVector::DotProduct(GetActorRightVector(), worldDirection);
 	
-	constexpr float cos22_5 = 0.382f; // cos(67.5)
-	constexpr float cos67_5 = 0.924f; // cos(22.5)
+	constexpr float cos22_5 = 0.382f; // cos(22.5)
+	constexpr float cos67_5 = 0.924f; // cos(67.5)
 	
 	if (rightDot >= 0.0f) // 우측
 	{
@@ -324,9 +343,31 @@ void APlayableCharacter::Run()
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 	m_bIsPressedShift = true;
+
+	if (!HasAuthority())
+	{
+		Server_Run();
+	}
 }
 
 void APlayableCharacter::StopRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+	m_bIsPressedShift = false;
+
+	if (!HasAuthority())
+	{
+		Server_StopRun();
+	}
+}
+
+void APlayableCharacter::Server_Run_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
+	m_bIsPressedShift = true;
+}
+
+void APlayableCharacter::Server_StopRun_Implementation()
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 	m_bIsPressedShift = false;
@@ -352,7 +393,9 @@ void APlayableCharacter::ToggleLockOnMode()
 		if (m_CurLockOnTarget != nullptr)
 		{
 			m_bIsLockOnMode = true;
+			
 			lockOnToTarget(m_CurLockOnTarget.Get());
+			
 			GetCharacterMovement()->bOrientRotationToMovement = false;
 			GetCharacterMovement()->bUseControllerDesiredRotation = true;
 		
@@ -399,7 +442,7 @@ void APlayableCharacter::lockOnToTarget(AActor* target)
 		return;
 	}
 	
-	APlayerController* playerController = Cast<APlayerController>(GetController());
+	APlayerController* playerController = CastChecked<APlayerController>(GetController());
 
 	if (playerController != nullptr)
 	{

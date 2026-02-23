@@ -4,10 +4,18 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CharacterBase/AIControllerBase.h"
+#include "Net/UnrealNetwork.h"
 #include "PlayableCharacter/PlayableCharacter.h"
 #include "Utility/EnumTypes.h"
 #include "Utility/CustomStructs.h"
 
+
+void UCrowdControlComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCrowdControlComponent, m_CurCrowdControlState);
+}
 
 UCrowdControlComponent::UCrowdControlComponent() :
 	m_Owner(nullptr),
@@ -15,6 +23,7 @@ UCrowdControlComponent::UCrowdControlComponent() :
 	m_CharacterMovementComponent(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 	
 	const UEnum* enumPtr = StaticEnum<ECrowdControlType>();
 	

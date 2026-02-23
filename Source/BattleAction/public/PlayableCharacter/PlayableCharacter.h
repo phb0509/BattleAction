@@ -47,7 +47,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void RotateActorToKeyInputDirection();
+	void RotateActorToKeyInputDirection(float controlYaw, const int32 inputVertical, const int32 inputHorizontal);
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
@@ -63,9 +63,9 @@ public:
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 
-	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const
+	FORCEINLINE int32 GetDirectionIndexFromKeyInput(const int32 inputVertical, const int32 inputHorizontal) const
 	{
-		return DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1];
+		return DirectionIndex[inputVertical + 1][inputHorizontal + 1];
 	}
 
 	FORCEINLINE bool IsLockOnMode() const { return m_bIsLockOnMode; }
@@ -99,6 +99,17 @@ public:
 	// ActionMappings
 	void Run();
 	void StopRun();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Run();
+
+	UFUNCTION(Server, Reliable)
+	void Server_StopRun();
+
+	// 입력 방향으로 회전 - 클라이언트에서 호출
+	UFUNCTION(Server, Reliable)
+	void Server_RotateActorToKeyInputDirection(float controlYaw, int32 inputVertical, int32 inputHorizontal);
+	
 	void ToggleLockOnMode();
 
 

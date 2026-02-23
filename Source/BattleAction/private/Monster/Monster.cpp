@@ -48,10 +48,7 @@ void AMonster::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
-	m_AIControllerBase = CastChecked<AAIControllerBase>(GetController());
 	m_CrowdControlComponent->SetOwnerAIController(NewController);
-	
-	UE_LOG(LogTemp, Warning, TEXT("AMonster :: PossessedBy"));
 }
 
 void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation,
@@ -59,11 +56,13 @@ void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const 
 {
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
 	
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	if (GetAIControllerBase() != nullptr)
+	{
+		GetAIControllerBase()->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	}
 	
 	if (!IsDead() && !m_CrowdControlComponent->IsGroggy())
 	{
-		check(m_StatComponent != nullptr);
 		m_StatComponent->OnDamageStamina(AttackInformation->staminaDamage);
 	}
 }
@@ -96,8 +95,11 @@ void AMonster::Die()
 
 	this->SetIsDead(true);
 	
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
-	m_AIControllerBase->StopBehaviorTree();
+	if (GetAIControllerBase() != nullptr)
+	{
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+		m_AIControllerBase->StopBehaviorTree();
+	}
 }
 
 void AMonster::ExecEvent_EndedDeathMontage()
@@ -109,7 +111,7 @@ void AMonster::ExecEvent_EndedDeathMontage()
 
 void AMonster::OnCalledTimelineEvent_Loop_AfterDeath(float curveValue)
 {
-	this->GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), curveValue * 2);
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), curveValue * 2);
 }
 
 void AMonster::OnCalledTimelineEvent_End_AfterDeath()
@@ -120,13 +122,14 @@ void AMonster::OnCalledTimelineEvent_End_AfterDeath()
 
 void AMonster::OnCalledTimelineEvent_Loop_DeathDissolve(float curveValue)
 {
-	this->GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DissolveAmount"), curveValue);
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DissolveAmount"), curveValue);
 }
 
 void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
 {
 	m_DeathDissolveTimeline.SetNewTime(0.0f);
 	m_DeathTimeline.SetNewTime(0.0f); // 초기화
+	
 	this->Deactivate();
 }
 
@@ -152,8 +155,8 @@ void AMonster::Activate()
 	
 	m_StatComponent->InitHP();
 	m_StatComponent->InitStamina();
-	
-	if (m_AIControllerBase.IsValid())
+		
+	if (GetAIControllerBase() != nullptr)
 	{
 		m_AIControllerBase->OnPossess(this);
 		m_AIControllerBase->StartBehaviorTree();
@@ -189,8 +192,8 @@ void AMonster::Activate()
 void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
 	this->SetIsDead(true);
-
-	if (m_AIControllerBase.IsValid())
+	
+	if (GetAIControllerBase() != nullptr)
 	{
 		m_AIControllerBase->StopBehaviorTree();
 		m_AIControllerBase->OnUnPossess();
@@ -274,11 +277,11 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 	);
 }
 
-void AMonster::SetBehaviorTreeFSMState(uint8 enumIndex) const
+void AMonster::SetBehaviorTreeFSMState(uint8 enumIndex)
 {
-	if (m_AIControllerBase.IsValid())
+	if (GetAIControllerBase() != nullptr)
 	{
-		m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, enumIndex);
+		GetAIControllerBase()->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, enumIndex);
 	}
 }
 
@@ -286,9 +289,9 @@ void AMonster::SetIsDead(bool bIsDead)
 {
 	m_bIsDead = bIsDead;
 	
-	if (m_AIControllerBase.IsValid())
+	if (GetAIControllerBase() != nullptr)
 	{
-		m_AIControllerBase->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
+		GetAIControllerBase()->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
 	}
 }
 
@@ -297,7 +300,10 @@ void AMonster::Pause()
 	GetMesh()->bPauseAnims = true;
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
 	
-	m_AIControllerBase->StopBehaviorTree();
+	if (GetAIControllerBase() != nullptr)
+	{
+		GetAIControllerBase()->StopBehaviorTree();
+	}
 }
 
 void AMonster::Unpause()
@@ -305,7 +311,20 @@ void AMonster::Unpause()
 	GetMesh()->bPauseAnims = false;
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	
-	m_AIControllerBase->StartBehaviorTree();
+	if (GetAIControllerBase() != nullptr)
+	{
+		GetAIControllerBase()->StartBehaviorTree();
+	}
+}
+
+AAIControllerBase* AMonster::GetAIControllerBase()
+{
+	if (!m_AIControllerBase.IsValid())
+	{
+		m_AIControllerBase = Cast<AAIControllerBase>(GetController()); // null이면 아직 Controller가 없다는 의미.
+	}
+	
+	return m_AIControllerBase.Get(); 
 }
 
 ACharacterBase* AMonster::GetTarget() const

@@ -26,13 +26,13 @@ void UUpperAttack_OnGround::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
 	{
-		m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		m_Owner->SetMovementModeReplicated(MOVE_Falling);
 	});
 }
 
-void UUpperAttack_OnGround::Execute()
+void UUpperAttack_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
@@ -42,28 +42,26 @@ void UUpperAttack_OnGround::Execute()
 		
 		if (ownerSkillComponent->IsStrikeAttackActive())
 		{
-			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
+			m_Owner->SetMovementModeReplicated(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
 
 			const FVector targetLocation = m_Owner->GetActorLocation() +
 				(m_Owner->GetActorUpVector() * m_JumpDistance) +
 				(m_Owner->GetActorForwardVector() * m_MoveDistance);
 			
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), targetLocation);
-			
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
 			
-			m_OwnerAnimInstance->Montage_Play(m_UpperAttackToAirMontage, 1.0f);
+			m_Owner->Multicast_SetMotionWarpingTarget(TEXT("Forward"), targetLocation);
+			m_Owner->Multicast_PlayMontage(m_UpperAttackToAirMontage, 1.0f);
 		}
 		else
 		{
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+			m_Owner->Multicast_SetMotionWarpingTarget(
 				TEXT("Forward"),
 				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 			
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
 			
-			m_OwnerAnimInstance->Montage_Play(m_UpperAttackMontage, 1.0f);
+			m_Owner->Multicast_PlayMontage(m_UpperAttackMontage, 1.0f);
 		}
 	}
 }

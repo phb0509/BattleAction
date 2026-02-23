@@ -27,18 +27,18 @@ void UDashAttack_InAir::Initialize()
 	});
 }
 
-void UDashAttack_InAir::Execute()
+void UDashAttack_InAir::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
-	m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
-	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+	m_OwnerSkillComponent->ApplyInAirSkillGravity(); // ���߿��� �ӹ��� �� �ְ� �߷³��߱�
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
+	
+	m_Owner->Multicast_SetMotionWarpingTarget(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
-
-	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
-
-	m_OwnerAnimInstance->Montage_Play(m_DashAttackMontage, 1.0f);
+	
+	m_Owner->Multicast_PlayMontage(m_DashAttackMontage, 1.0f);
 }
 
 bool UDashAttack_InAir::CanExecuteSkill() const

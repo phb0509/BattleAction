@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Utility/CustomStructs.h"
 #include "PlayableCharacter/PlayableCharacter.h"
 #include "SkillComponent.generated.h"
 
@@ -44,6 +45,11 @@ public:
 	virtual void BeginPlay() override;
 	
 	void ExecuteSkill(const FName& inputMappingContextName, const FName& skillName);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ExecuteSkill(const FName& inputMappingContextName, const FName& skillName, const FInputInfos& inputInfos);
+
+	void ApplyInAirSkillGravity();
 	void InitGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 	
 	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
@@ -73,6 +79,7 @@ public:
 	}
 
 protected:
+	virtual FInputInfos BuildInputInfos() const;
 	bool HasSkill(const FName& inputMappingContextName, const FName& skillName) const;
 
 private:

@@ -17,7 +17,7 @@ public:
     UExecution_OnGround();
     
 	virtual void Initialize() override;
-	virtual void Execute() override;
+	virtual void Execute(const FInputInfos& inputInfos) override;
 
     
 protected:

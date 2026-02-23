@@ -28,16 +28,16 @@ void UComboDashAttack_OnGround::Initialize()
 		m_Owner->SetIsSuperArmor(false);
 
 		ownerSkillComponent->SetCanChargingSkill(false);
-	});
+	}); 
 }
 
-void UComboDashAttack_OnGround::Execute()
+void UComboDashAttack_OnGround::Execute(const FInputInfos& inputInfos)
 {
-	Super::Execute();
+	Super::Execute(inputInfos);
 	
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 	
-	m_OwnerAnimInstance->Montage_Play(m_ComboDashAttackMontage,1.0f);
+	m_Owner->Multicast_PlayMontage(m_ComboDashAttackMontage, 1.0f);
 }
 
 bool UComboDashAttack_OnGround::CanExecuteSkill() const

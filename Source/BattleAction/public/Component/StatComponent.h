@@ -18,8 +18,9 @@ class BATTLEACTION_API UStatComponent : public UActorComponent
 
 public:
 	UStatComponent();
-	
+
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void InitStamina() { m_CurStamina = m_MaxStamina; }
@@ -113,16 +114,16 @@ private:
 
 	float m_AdditionalDefenseFromGuard;
 	
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Replicated, Meta = (AllowPrivateAccess = true))
 	float m_MaxHP;
 
-	UPROPERTY(VisibleInstanceOnly, Transient, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, Transient, Replicated, Meta = (AllowPrivateAccess = true))
 	float m_CurHP;
 
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Replicated, Meta = (AllowPrivateAccess = true))
 	float m_MaxStamina;
 
-	UPROPERTY(VisibleInstanceOnly, Transient, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, Transient, Replicated, Meta = (AllowPrivateAccess = true))
 	float m_CurStamina;
 	
 	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))

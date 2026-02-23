@@ -2,6 +2,7 @@
 
 #include "Component/StatComponent.h"
 #include "CharacterBase/CharacterBase.h"
+#include "Net/UnrealNetwork.h"
 
 UStatComponent::UStatComponent() :
 	m_DefaultDamage(100.0f),
@@ -22,6 +23,17 @@ UStatComponent::UStatComponent() :
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = false;
+	SetIsReplicatedByDefault(true);
+}
+
+void UStatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UStatComponent, m_MaxHP);
+	DOREPLIFETIME(UStatComponent, m_CurHP);
+	DOREPLIFETIME(UStatComponent, m_MaxStamina);
+	DOREPLIFETIME(UStatComponent, m_CurStamina);
 }
 
 void UStatComponent::BeginPlay()

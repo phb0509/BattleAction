@@ -16,7 +16,7 @@ public:
 	UChargingCancel_OnGround();
 
 	virtual void Initialize() override;
-	virtual void Execute() override;
+	virtual void Execute(const FInputInfos& inputInfos) override;
 
 protected:
 	virtual bool CanExecuteSkill() const override;
